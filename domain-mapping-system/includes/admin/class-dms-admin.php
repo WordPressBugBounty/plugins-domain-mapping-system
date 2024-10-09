@@ -169,7 +169,9 @@ class Admin {
      * @return array
      */
     public function get_content_types() : array {
-        $types = Helper::get_custom_post_types( 'objects' );
+        $types = get_post_types( [
+            'public' => true,
+        ], 'objects' );
         $clean_types = array();
         foreach ( $types as $singular => $item ) {
             $clean_type = array(
@@ -219,55 +221,30 @@ class Admin {
     public function register_scripts() : void {
         /**
          * Collect data to localize
-         * translations for JS
-         * premium flag
          */
-        $translations = (include_once $this->plugin_path . 'assets/js/localizations/js-translations.php');
-        /**
-         * Collect data to localize
-         * translations for JS
-         * premium flag
-         */
-        $dms_fs_data = array(
-            'nonce'              => wp_create_nonce( 'dms_nonce' ),
+        $dms_data = array(
             'rest_nonce'         => wp_create_nonce( 'wp_rest' ),
-            'scheme'             => Helper::get_scheme(),
-            'ajax_url'           => admin_url( 'admin-ajax.php' ),
             'site_url'           => site_url(),
             'rest_url'           => $this->get_rest_url(),
-            'translations'       => $translations,
             'is_premium'         => (int) $this->fs->can_use_premium_code__premium_only(),
             'upgrade_url'        => $this->fs->get_upgrade_url(),
             'values_per_mapping' => Setting::find( 'dms_values_per_mapping' )->get_value() ?? 5,
             'mappings_per_page'  => Setting::find( 'dms_mappings_per_page' )->get_value() ?? 10,
             'paged'              => ( !empty( $_GET['paged'] ) ? $_GET['paged'] : 1 ),
             'plugin_url'         => $this->plugin_url,
+            'available_objects'  => $this->get_content_types(),
         );
-        // Register main js dependencies
-        // Woo is using same js, that is why deregister first to avoid conflicts
-        wp_deregister_script( 'select2' );
-        // Deregister another script used by woo, which causes issues
-        wp_deregister_script( 'wc-enhanced-select' );
-        wp_register_script(
-            'select2',
-            $this->plugin_url . 'assets/js/select2.full.min.js',
-            array('jquery'),
-            $this->version
-        );
-        wp_register_script( 'dms-stack', $this->plugin_url . 'assets/js/dms-stack.js', $this->version );
-        wp_enqueue_script( 'dms-stack' );
-        wp_register_script(
-            'dms-js',
-            $this->plugin_url . 'assets/js/dms.js',
-            array('jquery', 'dms-stack'),
-            $this->version
-        );
-        wp_enqueue_script( 'select2' );
-        wp_enqueue_script( 'dms-js' );
-        // Include js data into dms-js
-        wp_localize_script( 'dms-js', 'dms_fs', $dms_fs_data );
         // Dequeue Wc Vendors Pro js file to avoid from conflicts
         wp_dequeue_script( 'wcv-admin-js' );
+        $dms_script_asset = (include $this->plugin_path . 'dist/js/admin/dms.asset.php');
+        wp_register_script(
+            'admin-dms-js',
+            $this->plugin_url . 'dist/js/admin/dms.js',
+            $dms_script_asset['dependencies'],
+            $dms_script_asset['version']
+        );
+        wp_enqueue_script( 'admin-dms-js' );
+        wp_localize_script( 'admin-dms-js', 'dms_data', $dms_data );
     }
 
 }

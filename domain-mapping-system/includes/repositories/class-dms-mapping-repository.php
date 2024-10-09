@@ -2,6 +2,7 @@
 
 namespace DMS\Includes\Repositories;
 
+use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Exceptions\DMS_Exception;
 use DMS\Includes\Utils\Helper;
 use DMS\Includes\Data_Objects\Mapping;
@@ -49,7 +50,7 @@ class Mapping_Repository {
 						$result = Mapping::update( $item['id'], $item );
 						break;
 					case 'delete':
-						$result = Mapping::delete( $item['id'] );
+						$result = $this->delete( $item['id'] );
 						break;
 				}
 
@@ -103,5 +104,24 @@ class Mapping_Repository {
 
 			return Mapping::create( $data );
 		}
+	}
+
+	/**
+	 * Delete mapping and mapping values
+	 *
+	 * @param $mapping_id
+	 *
+	 * @return true[]
+	 * @throws DMS_Exception
+	 */
+	public function delete( $mapping_id ) {
+		$mapping_values = Mapping_Value::where( [ 'mapping_id' => $mapping_id ] );
+		if ( ! empty( $mapping_values ) ) {
+			foreach ( $mapping_values as $mapping_value ) {
+				Mapping_Value::delete( $mapping_value->get_id() );
+			}
+		}
+
+		return [ 'success' => Mapping::delete( $mapping_id ) ];
 	}
 }

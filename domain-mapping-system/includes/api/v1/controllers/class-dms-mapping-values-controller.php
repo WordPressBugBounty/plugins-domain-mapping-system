@@ -41,7 +41,7 @@ class Mapping_Values_Controller extends Rest_Controller {
 	 * @return void
 	 */
 	public function register_routes(): void {
-		register_rest_route( $this->namespace, '/' . $this->mapping_rest_base . '/batch/', array(
+		register_rest_route( $this->namespace, '/' . $this->generic_rest_base . '/batch/', array(
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'batch' ),
@@ -136,16 +136,30 @@ class Mapping_Values_Controller extends Rest_Controller {
 	 */
 	public function batch( $request ) {
 		try {
-			$id       = $request->get_param( 'mapping_id' );
-			$data     = $request->get_param( 'data' );
-			$mappings = ( new Mapping_Value_Repository() )->batch( $id, $data );
+			$mapping_values = ( new Mapping_Value_Repository() )->batch( $request->get_params() );
+			$mapping_values = $this->prepare_data( $mapping_values );
 
-			return rest_ensure_response( $mappings );
+			return rest_ensure_response( $mapping_values );
 		} catch ( Exception $e ) {
 			Helper::log( $e, __METHOD__ );
 
 			return Helper::get_wp_error( $e );
 		}
+	}
+
+	/**
+	 * Add mapping value Wp_Object, mapped_link to the response
+	 *
+	 * @param $values
+	 *
+	 * @return array
+	 */
+	private function prepare_data( $values ) {
+		foreach ( $values as $key => $value ) {
+			$values[ $key ]['data'] = $this->prepare_item( $value['data'], [ 'object', 'mapped_link' ] );
+		}
+
+		return $values;
 	}
 
 	/**
@@ -157,11 +171,12 @@ class Mapping_Values_Controller extends Rest_Controller {
 	 */
 	public function get_items( $request ) {
 		try {
-			$limit          = (int) $request->get_param( 'values_per_row' );
-			$start          = (int) $request->get_param( 'start' );
+			$limit          = (int) $request->get_param( 'per_page' );
+			$start          = (int) $request->get_param( 'paged' );
 			$mapping_id     = $request->get_param( 'mapping_id' );
 			$mapping_values = Mapping_Value::where( [ 'mapping_id' => $mapping_id ], $start, $limit );
-			$mapping_values = $this->prepare_item_object( $mapping_values );
+			$include        = $request->get_param( 'include' );
+			$mapping_values = $this->prepare_item( $mapping_values, $include );
 			$mapping_values = $this->prepare_total_count( $mapping_values, $mapping_id );
 
 			return rest_ensure_response( $mapping_values );
@@ -176,31 +191,29 @@ class Mapping_Values_Controller extends Rest_Controller {
 	 * Prepare item object
 	 *
 	 * @param $mapping_values
+	 * @param $include
 	 *
 	 * @return array
 	 */
-	public static function prepare_item_object( $mapping_values ): array {
+	public static function prepare_item( $mapping_values, $include ): array {
 		$prepared_values = [];
 		if ( $mapping_values instanceof Mapping_Value ) {
 			$mapping_values = array( $mapping_values );
 		}
 		foreach ( $mapping_values as $value ) {
-			$name = '';
-			if ( $value->object_type == Mapping_Value::OBJECT_TYPE_POST ) {
-				$name = get_post( $value->object_id )->post_title;
-			} elseif ( $value->object_type == Mapping_Value::OBJECT_TYPE_TERM ) {
-				$name = get_term( $value->object_id )->name;
-			} elseif ( $value->object_type == Mapping_Value::OBJECT_TYPE_POSTS_HOMEPAGE ) {
-				$name = __( 'Latest posts', 'domain-mapping-system' );
-			} elseif ( is_null( $value->object_id ) ) {
-				$post_type_object = get_post_type_object( $value->object_type );
-				$name = !empty( $post_type_object->label ) ? $post_type_object->label : $value->object_type;
+			if ( ! $value instanceof Mapping_Value ) {
+				continue;
 			}
-			$name              = apply_filters( 'dms_mapping_value_name', $name, $value );
-			$prepared_values[] = array(
-				'value'   => $value,
-				'_object' => [ 'object_name' => $name ],
-			);
+			$item = array( 'value' => $value );
+			if ( ! empty( $include ) && in_array( 'object', $include ) ) {
+				$object          = $value->get_wp_object();
+				$item['_object'] = $object;
+			}
+			if ( ! empty( $include ) && in_array( 'mapped_link', $include ) ) {
+				$mapped_link          = $value->get_mapped_link();
+				$item['_mapped_link'] = $mapped_link;
+			}
+			$prepared_values[] = $item;
 		}
 
 		return $prepared_values;
@@ -350,7 +363,7 @@ class Mapping_Values_Controller extends Rest_Controller {
 	 * @return int|null|WP_Error
 	 */
 	public function validate_object_id( ?int $value ) {
-		if ( !is_null( $value) && !is_numeric( $value )) {
+		if ( ! is_null( $value ) && ! is_numeric( $value ) ) {
 			return new WP_Error( 'rest_invalid_object_id', 'Invalid object ID', [ 'status' => 400 ] );
 		}
 		$is_validated = term_exists( $value, get_taxonomies() ) || ! empty( get_post( $value ) );
@@ -360,7 +373,7 @@ class Mapping_Values_Controller extends Rest_Controller {
 
 		return $value;
 	}
-	
+
 	/**
 	 * Sanitize object id
 	 *
@@ -386,6 +399,7 @@ class Mapping_Values_Controller extends Rest_Controller {
 			if ( ! empty( get_post_type_object( $value ) ) && ! empty( Setting::find( 'dms_use_' . $value . '_archive' )->get_value() ) ) {
 				return $value;
 			}
+
 			return new WP_Error( 'rest_invalid_object_type', 'Invalid object type', [ 'status' => 400 ] );
 		}
 

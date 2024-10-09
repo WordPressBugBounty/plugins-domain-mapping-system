@@ -9,34 +9,68 @@ use DMS\Includes\Utils\Helper;
 class Mapping_Value_Repository {
 
 	/**
+	 * Allowed request methods
+	 */
+	const ALLOWED_METHODS = [
+		'create',
+		'update',
+		'delete',
+	];
+
+	/**
 	 * Create multiple mapping values
 	 *
-	 * @param int $id Mapping id
 	 * @param array $params Params which must be updated
 	 *
 	 * @return array
 	 * @throws DMS_Exception
 	 */
-	public function batch( int $id, array $params ): array {
-		$errors = [];
-		foreach ( $params as $data ) {
-			$data['mapping_id'] = $id;
+	public function batch( $params ): array {
+		$results = [];
 
-			if ( ! empty( $data['id'] ) ) {
-				$res = Mapping_Value::update( $data['id'], $data );
-			} else {
-				$res = Mapping_Value::create( $data );
+		foreach ( $params as $param ) {
+			if ( empty( $param['method'] ) || ! in_array( $param['method'], self::ALLOWED_METHODS ) ) {
+				throw new DMS_Exception( 'unknown_method', __( 'Unknown method', 'domain-mapping-system' ) );
 			}
-			if ( Helper::is_dms_error( $res ) ) {
-				$errors[] = $res;
+
+			$method = $param['method'];
+			$data   = $param['data'];
+
+			$errors  = [];
+			$values  = [];
+			$success = true;
+
+			foreach ( $data as $item ) {
+				$result = null;
+				switch ( $method ) {
+					case 'create':
+						$result = Mapping_Value::create( $item );
+						break;
+					case 'update':
+						$result = Mapping_Value::update( $item['id'], $item );
+						break;
+					case 'delete':
+						$result = Mapping_Value::delete( $item['id'] );
+						break;
+				}
+
+				if ( Helper::is_dms_error( $result ) ) {
+					$errors[] = $result;
+					$success  = false;
+				} else {
+					$values[] = $result;
+				}
 			}
+
+			$results[] = [
+				'method'  => $method,
+				'success' => $success,
+				'errors'  => $errors,
+				'data'    => $values
+			];
 		}
-		$success = empty( $errors );
 
-		return [
-			'success' => $success,
-			'errors'  => $errors
-		];
+		return $results;
 	}
 
 	/**
@@ -71,6 +105,7 @@ class Mapping_Value_Repository {
 	 * Delete multiple mapping values by mapping id
 	 *
 	 * @param int $id
+	 * @param $count
 	 *
 	 * @return true
 	 * @throws DMS_Exception

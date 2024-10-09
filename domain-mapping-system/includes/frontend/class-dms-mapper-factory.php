@@ -55,7 +55,9 @@ class Mapper_Factory {
 			}
 			
 			if ( class_exists( $class ) ) {
-				return new $class( $mapping_value, $query );
+				$class = new $class( $mapping_value, $query );
+
+				return apply_filters( 'dms_object_mapper', $class, $mapping_value, $query );
 			}
 		}
 		

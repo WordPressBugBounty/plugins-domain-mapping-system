@@ -40,6 +40,12 @@ class Settings_Controller extends Rest_Controller {
 				'permission_callback' => array( $this, 'nonce_is_verified' ),
 
 			),
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_items' ),
+				'permission_callback' => array( $this, 'nonce_is_verified' ),
+			),
+
 		) );
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<key>[a-zA-Z0-9_.-]+)', array(
@@ -63,7 +69,12 @@ class Settings_Controller extends Rest_Controller {
 		) );
 	}
 
-	public function get_collection_params() {
+	/**
+	 * Get collection params
+	 *
+	 * @return array[]
+	 */
+	public function get_collection_params(): array {
 		return array(
 			'key'   => array(
 				'description'       => 'Setting key',
@@ -73,11 +84,28 @@ class Settings_Controller extends Rest_Controller {
 			),
 			'value' => array(
 				'description'       => 'Setting value',
-				'type'              => 'string',
 				'required'          => false,
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => array($this, 'sanitize_value'),
 			),
 		);
+	}
+
+	/**
+	 * Sanitize callback
+	 *
+	 * @param $value
+	 *
+	 * @return mixed|string
+	 */
+	public function sanitize_value( $value ) {
+		if ( is_array( $value ) ) {
+			foreach ( $value as $k => $v ) {
+				$value[ $k ] = is_string( $v ) ? sanitize_text_field( $v ) : $v;
+			}
+		} else {
+			$value = sanitize_text_field( $value );
+		}
+		return $value;
 	}
 
 	/**
@@ -100,6 +128,33 @@ class Settings_Controller extends Rest_Controller {
 		}
 	}
 
+	/**
+	 * Get settings by key names
+	 *
+	 * @param $request
+	 *
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
+	 */
+	public function get_items( $request ) {
+		try {
+			$keys     = $request->get_param( 'key_names' );
+			$settings = ! empty( $keys ) ? Setting::where_in( $keys ) : array();
+
+			return rest_ensure_response( $settings );
+		} catch ( \Exception $e ) {
+			Helper::log( $e, __METHOD__ );
+
+			return Helper::get_wp_error( $e );
+		}
+	}
+
+	/**
+	 * Create setting
+	 *
+	 * @param $request
+	 *
+	 * @return Setting|WP_Error
+	 */
 	public function create_item( $request ) {
 		try {
 			$params = $request->get_params();
@@ -112,6 +167,13 @@ class Settings_Controller extends Rest_Controller {
 		}
 	}
 
+	/**
+	 * Delete setting
+	 *
+	 * @param $request
+	 *
+	 * @return bool|WP_Error
+	 */
 	public function delete_item( $request ) {
 		try {
 			$key = $request->get_param( 'key' );
@@ -124,6 +186,13 @@ class Settings_Controller extends Rest_Controller {
 		}
 	}
 
+	/**
+	 * Batch settings
+	 *
+	 * @param $request
+	 *
+	 * @return array|WP_Error
+	 */
 	public function batch( $request ) {
 		try {
 			$params = $request->get_params();
@@ -136,6 +205,11 @@ class Settings_Controller extends Rest_Controller {
 		}
 	}
 
+	/**
+	 * Get items schema
+	 *
+	 * @return array
+	 */
 	public function get_item_schema() {
 		return array(
 			'type'       => 'object',

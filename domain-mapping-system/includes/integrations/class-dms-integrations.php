@@ -3,8 +3,10 @@
 namespace DMS\Includes\Integrations;
 
 use DMS\Includes\Integrations\BuddyBoss\BuddyBoss_Platform;
+use DMS\Includes\Integrations\Divi\Divi;
 use DMS\Includes\Integrations\SEO\Yoast\Seo_Yoast;
 use DMS\Includes\Integrations\WCFM\WCFM;
+use DMS\Includes\Utils\Helper;
 class Integrations {
     /**
      * Keeps the instance of current class
@@ -34,6 +36,13 @@ class Integrations {
     public bool $buddy_boss;
 
     /**
+     * Divi instance
+     *
+     * @var
+     */
+    public $divi;
+
+    /**
      * Singleton pattern
      *
      * @return Integrations
@@ -46,15 +55,6 @@ class Integrations {
     }
 
     /**
-     * Hooks the 'plugins_loaded' action to initialize integrations after all plugins have been loaded.
-     *
-     * @return void
-     */
-    public function run() : void {
-        add_action( 'plugins_loaded', array($this, 'initialize_integrations') );
-    }
-
-    /**
      * Initialize integrations
      *
      * @return void
@@ -62,6 +62,7 @@ class Integrations {
     public function initialize_integrations() : void {
         // Initialize free integrations
         $this->buddy_boss = $this->initialize_buddypboss_integration();
+        $this->divi = $this->initialize_divi_integration();
         // Initialize premium integrations
         if ( method_exists( $this, 'initialize_seo_yoast__premium_only' ) ) {
             if ( !function_exists( 'is_plugin_active' ) ) {
@@ -80,6 +81,28 @@ class Integrations {
     public function initialize_buddypboss_integration() : bool {
         if ( is_plugin_active( 'buddyboss-platform/bp-loader.php' ) ) {
             BuddyBoss_Platform::run();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Hooks the 'plugins_loaded' action to initialize integrations after all plugins have been loaded.
+     *
+     * @return void
+     */
+    public function run() : void {
+        add_action( 'plugins_loaded', array($this, 'initialize_integrations') );
+    }
+
+    /**
+     * Divi integration
+     *
+     * @return bool
+     */
+    public function initialize_divi_integration() : bool {
+        if ( is_plugin_active( 'divi-builder/divi-builder.php' ) || Helper::active_theme_is_divi() ) {
+            Divi::run();
             return true;
         }
         return false;

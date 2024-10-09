@@ -226,7 +226,7 @@ class Mappings_Controller extends Rest_Controller {
 		$prepared_mappings = array();
 		foreach ($mappings as $mapping){
 			$values = Mapping_Value::where(['mapping_id' => $mapping->id], 0, $values_per_page);
-			$values = Mapping_Values_Controller::prepare_item_object($values);
+			$values = Mapping_Values_Controller::prepare_item($values, ['object', 'mapped_link']);
 			$values = Mapping_Values_Controller::prepare_total_count($values, $mapping->id);
 			$prepared_mappings[] = array(
 				'mapping' => $mapping,
@@ -370,9 +370,9 @@ class Mappings_Controller extends Rest_Controller {
 	public function delete_item( $request ) {
 		try {
 			$id      = $request->get_param( 'id' );
-			$mapping = Mapping::delete( $id );
+			$res = (new Mapping_Repository())->delete($id);
 
-			return rest_ensure_response( $mapping );
+			return rest_ensure_response( $res );
 		} catch ( Exception $e ) {
 			Helper::log( $e, __METHOD__ );
 

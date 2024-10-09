@@ -10,10 +10,10 @@ use WP_Query;
 class Shop_Mapper extends Mapper implements Mapper_Interface {
 
 	/**
-	 * @var int|null 
+	 * @var int|null
 	 */
 	public ?int $shop_page_id = null;
-	
+
 	/**
 	 * Constructor
 	 *
@@ -21,26 +21,10 @@ class Shop_Mapper extends Mapper implements Mapper_Interface {
 	 * @param WP_Query $query
 	 */
 	public function __construct( Mapping_Value $value, WP_Query $query ) {
-		parent::__construct($value, $query);
+		parent::__construct( $value, $query );
 		$this->shop_page_id = wc_get_page_id( 'shop' );
-		// Maybe Divi runs shop page
-		if($this->divi_runs_shop_page()) {
-			$divi_shop_mapper = new Divi_Shop_Mapper($this->mapping_value, $this->query);
-			$this->query = $divi_shop_mapper->query;
-		} else {
-			$this->object  = get_post( $this->mapping_value->object_id );
-			$this->define_query();	
-		}
-	}
-
-	/**
-	 * Check whether Divi supports the shop page
-	 * 
-	 * @return bool
-	 */
-	public function divi_runs_shop_page() {
-		// Check if Divi theme or parent theme is active
-		return Helper::active_theme_is_divi() && function_exists( 'et_pb_is_pagebuilder_used' ) && et_pb_is_pagebuilder_used( $this->shop_page_id );
+		$this->object       = get_post( $this->mapping_value->object_id );
+		$this->define_query();
 	}
 
 	/**

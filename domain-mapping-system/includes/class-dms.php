@@ -3,7 +3,6 @@
 namespace DMS\Includes;
 
 use DMS\Includes\Admin\Admin;
-use DMS\Includes\Ajax\Ajax;
 use DMS\Includes\Api\Server;
 use DMS\Includes\Cron\Cron;
 use DMS\Includes\Frontend\Frontend;
@@ -103,7 +102,6 @@ final class DMS {
         $this->set_locale();
         $this->run_cron();
         $this->define_admin_classes();
-        $this->init_ajax();
         $this->run_integrations();
         $this->define_frontend();
         $this->run_migrations();
@@ -138,6 +136,7 @@ final class DMS {
          */
         require_once $this->plugin_dir_path . 'includes/integrations/class-dms-integrations.php';
         require_once $this->plugin_dir_path . 'includes/integrations/buddyboss/class-dms-buddy-boss-platform.php';
+        require_once $this->plugin_dir_path . 'includes/integrations/divi/class-dms-divi.php';
         /**
          * Utils
          */
@@ -154,12 +153,21 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-mappings-controller.php';
         require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-mapping-values-controller.php';
         require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-settings-controller.php';
+        require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-wp-object-groups-controller.php';
+        require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-wp-objects-controller.php';
         /**
          * Repositories
          */
         require_once $this->plugin_dir_path . 'includes/repositories/class-dms-mapping-repository.php';
         require_once $this->plugin_dir_path . 'includes/repositories/class-dms-mapping-value-repository.php';
         require_once $this->plugin_dir_path . 'includes/repositories/class-dms-setting-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-object-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-object-group-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-object-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-archive-object-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-homepage-object-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-post-object-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-term-object-repository.php';
         /**
          * Data objects
          */
@@ -167,6 +175,12 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-mapping.php';
         require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-mapping-value.php';
         require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-setting.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-object.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-object-group.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-archive-object-group.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-homepage-post-object-group.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-post-object-group.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-term-object-group.php';
         /**
          * Admin Classes
          */
@@ -176,9 +190,10 @@ final class DMS {
          */
         require_once $this->plugin_dir_path . 'includes/class-dms-fs.php';
         /**
-         * Ajax
+         * Factories
          */
-        require_once $this->plugin_dir_path . 'includes/ajax/class-dms-ajax.php';
+        require_once $this->plugin_dir_path . 'includes/factories/class-dms-wp-object-repository-factory.php';
+        require_once $this->plugin_dir_path . 'includes/factories/class-dms-wp-object-factory.php';
         /**
          * Frontend
          */
@@ -250,15 +265,6 @@ final class DMS {
      */
     public function run_cron() {
         Cron::get_instance()->run();
-    }
-
-    /**
-     * Define ajax
-     *
-     * @return void
-     */
-    public function init_ajax() : void {
-        Ajax::init();
     }
 
     /**

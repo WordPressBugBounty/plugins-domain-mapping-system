@@ -21,6 +21,7 @@ class Migration {
 	public function run() {
 		$this->run_migration_200();
 		$this->run_migration_207();
+		$this->run_migration_208();
 	}
 
 	public function run_migration_200() {
@@ -152,6 +153,19 @@ class Migration {
 				$wpdb->query( "ALTER TABLE " . $wpdb->prefix . "dms_mapping_values MODIFY COLUMN object_type VARCHAR(256) NOT NULL;" );
 				// Update the setting to mark migration as completed
 				Setting::create( [ 'key' => 'dms_migration_207', 'value' => '1' ] );
+			}
+		}
+	}
+
+	public function run_migration_208() {
+		if ( $this->version >= 208 ) {
+			$setting = Setting::find( 'dms_migration_208' );
+			if ( empty( $setting->get_value() ) ) {
+				$setting = Setting::find( 'dms_main_mapping' );
+				if ( ! empty( $setting->get_value() ) && ! is_array( $setting->get_value() ) ) {
+					Setting::update( [ 'key' => 'dms_main_mapping', 'value' => $setting->get_value() ] );
+				}
+				Setting::create( [ 'key' => 'dms_migration_208', 'value' => '1' ] );
 			}
 		}
 	}

@@ -1,3 +1,6 @@
+= 2.0.8 =
+* Freemius integration fix. 
+
 = 2.0.7 =
 * UI improvements.
 * Stability improvements / bug fixes.

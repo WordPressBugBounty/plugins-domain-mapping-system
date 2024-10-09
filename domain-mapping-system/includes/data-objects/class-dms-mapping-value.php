@@ -3,6 +3,8 @@
 namespace DMS\Includes\Data_Objects;
 
 use DMS\Includes\Exceptions\DMS_Exception;
+use DMS\Includes\Factories\Wp_Object_Factory;
+use DMS\Includes\Utils\Helper;
 use WP_Post;
 use WP_Term;
 
@@ -27,15 +29,6 @@ class Mapping_Value extends Data_Object {
 	 * Constant for object_type posts_homepage
 	 */
 	const OBJECT_TYPE_POSTS_HOMEPAGE = 'posts_homepage';
-
-	/**
-	 * @var string[]
-	 */
-	static $basic_object_types = array(
-		self::OBJECT_TYPE_POST,
-		self::OBJECT_TYPE_POSTS_HOMEPAGE,
-		self::OBJECT_TYPE_TERM,
-	);
 
 	/**
 	 * ID of the mapping value
@@ -96,7 +89,9 @@ class Mapping_Value extends Data_Object {
 	}
 
 	/**
-	 * Updates mapping value by id
+	 * Updates mapping value by id and returns the updated mapping value
+	 * The result mapping value needs to be fetched one more time because the wpdb_update
+	 * Returns the Mapping_Value object the parameters of which are populated according to $data
 	 *
 	 * @param int $id The id of the mapping which must be updated
 	 * @param array $data The fields which must be updated
@@ -104,7 +99,9 @@ class Mapping_Value extends Data_Object {
 	 * @return Mapping_Value|object
 	 */
 	public static function update( int $id, array $data ): Mapping_Value {
-		return parent::wpdb_update( $id, $data );
+		parent::wpdb_update( $id, $data );
+
+		return Mapping_Value::find( $id );
 	}
 
 	/**
@@ -132,17 +129,6 @@ class Mapping_Value extends Data_Object {
 	 */
 	public static function where( array $conditions = [], ?int $paged = null, ?int $limit = null, ?string $orderby = 'primary', ?string $order = 'DESC' ): array {
 		return parent::wpdb_where( $conditions, $paged, $limit, $orderby, $order );
-	}
-
-	/**
-	 * Get mapping value object type from mapping value object
-	 *
-	 * @param WP_Term|WP_Post $object
-	 *
-	 * @return string
-	 */
-	public static function get_wp_object_type( $object ): string {
-		return $object instanceof WP_Term ? 'term' : ( $object instanceof WP_Post ? 'post' : '' );
 	}
 
 	/**
@@ -270,5 +256,32 @@ class Mapping_Value extends Data_Object {
 	 */
 	public function is_posts_homepage():bool {
 		return $this->object_type === self::OBJECT_TYPE_POSTS_HOMEPAGE;
+	}
+
+	/**
+	 * Get wp object of mapping value
+	 *
+	 * @return Wp_Object|object
+	 */
+	public function get_wp_object(){
+		return (new Wp_Object_Factory())->make($this->object_id, $this->object_type);
+	}
+
+	/**
+	 * Get mapped link
+	 * 
+	 * @return string
+	 */
+	public function get_mapped_link():string {
+		$mapping = Mapping::find( $this->mapping_id );
+		$path    = trim( wp_parse_url( $this->get_wp_object()->get_link(), PHP_URL_PATH ), '/' );
+		if ( $this->primary ) {
+			$mapped_url = Helper::generate_url( $mapping->host, $mapping->path );
+		} else {
+			$path       = ! empty( $mapping->path ) ? $mapping->path . '/' . $path : $path;
+			$mapped_url = Helper::generate_url( $mapping->host, $path );
+		}
+
+		return $mapped_url;
 	}
 }

@@ -76,6 +76,29 @@ class Setting extends Data_Object {
 	}
 
 	/**
+	 * Settings where in
+	 *
+	 * @param array $keys
+	 *
+	 * @return array|null
+	 */
+	public static function where_in( array $keys ): ?array {
+		$res = [];
+		if ( empty( $keys ) ) {
+			return array();
+		}
+		$options = get_options( $keys );
+		if ( empty( $options ) ) {
+			return array();
+		}
+		foreach ( $options as $key => $value ) {
+			$res[] = self::make( [ 'key' => $key, 'value' => $value ] );
+		}
+
+		return $res;
+	}
+
+	/**
 	 *
 	 * @param $key
 	 *

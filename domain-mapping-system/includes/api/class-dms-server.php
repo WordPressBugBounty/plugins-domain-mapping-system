@@ -66,6 +66,8 @@ class Server {
 			'mappings'       => 'DMS\\Includes\\Api\\V1\\Controllers\\Mappings_Controller',
 			'mapping_values' => 'DMS\\Includes\\Api\\V1\\Controllers\\Mapping_Values_Controller',
 			'settings'       => 'DMS\\Includes\\Api\\V1\\Controllers\\Settings_Controller',
+			'objects'        => 'DMS\\Includes\\Api\\V1\\Controllers\\WP_Objects_Controller',
+			'object_groups'  => 'DMS\\Includes\\Api\\V1\\Controllers\\Wp_Object_Groups_Controller',
 		];
 	}
 }

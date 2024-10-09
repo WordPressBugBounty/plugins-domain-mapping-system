@@ -72,11 +72,13 @@ class Helper {
 	public static function get_custom_taxonomies( $object_type ): array {
 		$taxonomies = get_taxonomies( array(
 			'object_type' => array( $object_type ),
-			'_builtin'    => false,
-		) );
+		), 'objects' );
 
 		return array_map( function ( $taxonomy ) {
-			return ucfirst( $taxonomy );
+			return array(
+				'name'  => $taxonomy->name,
+				'label' => $taxonomy->label,
+			);
 		}, $taxonomies );
 	}
 

@@ -127,27 +127,23 @@ abstract class Data_Object implements JsonSerializable {
 			}
 		}
 		$order_by     = esc_sql( $order_by );
-		$ordering     = !empty( $ordering ) && strtoupper( $ordering ) === 'DESC' ? 'DESC' : 'ASC';
-		$order_by_str = !empty( $order_by ) ? "ORDER BY `$order_by` $ordering" : "";
+		$ordering     = ! empty( $ordering ) && strtoupper( $ordering ) === 'DESC' ? 'DESC' : 'ASC';
+		$order_by_str = ! empty( $order_by ) ? "ORDER BY `$order_by` $ordering" : "";
 		$query        = "SELECT * FROM `" . $wpdb->prefix . static::TABLE . "` WHERE $where_clause $order_by_str ";
 		$query        = ! empty( $values ) ? $wpdb->prepare( $query, $values ) : $query;
-		if ( ! empty( $paged ) || ! empty( $limit ) ) {
-			$paged = is_null( $paged ) ? 1 : $paged;
-			$limit = (int) $limit;
-			if ( $limit > 0 ) {
-				if ($order_by == 'primary'){
-					$offset = ! empty( $paged ) ? $paged : 0;
-				} else {
-					$offset = ! empty( $paged ) ? ( $paged - 1 ) * $limit : 0;
-				}
-				$limit  = $wpdb->prepare( "LIMIT %d, %d", $offset, $limit );
-				$query  .= $limit;
-			}
+		$paged        = is_null( $paged ) || $paged < 1 ? 1 : $paged;  // Ensure $paged is at least 1
+		$limit        = (int) $limit;
+		if ( $limit > 0 ) {
+			// Calculate the offset
+			$offset = ( $paged - 1 ) * $limit;
+			$query  .= " LIMIT $offset, $limit";
 		}
 
+		// Execute the query and fetch results
 		$result = $wpdb->get_results( $query, ARRAY_A );
 		$data   = [];
 
+		// Map the results using the make() method
 		if ( ! empty( $result ) ) {
 			foreach ( $result as $res ) {
 				$mapping = self::make( $res );

@@ -107,14 +107,10 @@ class WP_Queried_Object_Handler {
             global $wp_query;
             $this->wp_query = $wp_query;
             if ( $this->frontend->is_dms_hosted() && !$this->mapping_handler->mapped && (!is_null( $this->global_mapping_handler ) && !$this->global_mapping_handler->mapped) ) {
-                if ( method_exists( $this, 'run_unmapped_scenario__premium_only' ) ) {
-                    $this->run_unmapped_scenario__premium_only( $wp_query );
-                }
+                $this->run_unmapped_scenario( $wp_query );
             } elseif ( $this->frontend->is_dms_hosted() && !$this->mapping_handler->mapped && (!is_null( $this->global_mapping_handler ) && $this->global_mapping_handler->mapped) ) {
                 if ( $wp_query->is_404() ) {
-                    if ( method_exists( $this, 'run_unmapped_scenario__premium_only' ) ) {
-                        $this->run_unmapped_scenario__premium_only( $wp_query );
-                    }
+                    $this->run_unmapped_scenario( $wp_query );
                 }
             }
         } catch ( Exception $exception ) {
@@ -122,6 +118,46 @@ class WP_Queried_Object_Handler {
             Helper::log( $exception, __METHOD__ );
             // Do nothing ...
         }
+    }
+
+    /**
+     * Case when dms hosted uri requested, but it's not actually mapped via dms.
+     * 1. Throw 404
+     * 2. Redirect to possible primary mapping
+     */
+    public function run_unmapped_scenario( $wp_query ) : void {
+        $scenario_executed = false;
+        if ( !empty( $this->frontend->unmapped_pages_handling ) ) {
+            $unmapped_pages_handling_sc = Setting::find( 'dms_unmapped_pages_handling_sc' )->get_value();
+            if ( (int) $unmapped_pages_handling_sc === self::UNMAPPED_PAGES_THROW_404 ) {
+                if ( method_exists( $this, 'run_404_unmapped_scenario__premium_only' ) ) {
+                    $scenario_executed = $this->run_404_unmapped_scenario__premium_only( $wp_query );
+                }
+            } elseif ( (int) $unmapped_pages_handling_sc === self::UNMAPPED_PAGES_REDIRECT_TO_PRIMARY ) {
+                if ( method_exists( $this, 'run_redirection_unmapped_scenario__premium_only' ) ) {
+                    $scenario_executed = $this->run_redirection_unmapped_scenario__premium_only( $wp_query );
+                }
+            }
+        }
+        if ( !$scenario_executed ) {
+            // Run default unmapped scenario if unmapped page handling is not selected
+            $this->run_default_unmapped_scenario();
+        }
+        // Do nothing ...
+    }
+
+    /**
+     * Redirect to original host
+     *
+     * @return void
+     */
+    public function run_default_unmapped_scenario() : void {
+        $original_host = Helper::get_base_host();
+        $url = Helper::generate_url( $original_host, $this->request_params->path );
+        Helper::redirect_to( $url );
+        add_action( 'template_redirect', function () use($url) {
+            Helper::redirect_to( $url );
+        } );
     }
 
 }
