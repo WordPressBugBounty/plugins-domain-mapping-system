@@ -398,7 +398,7 @@ We really appreciate your input! We currently don't have a public repo, but you 
 == Changelog ==
 
 = 2.0.9 =
-* Stability improvements and bug fixes. 
+* Stability improvements and bug fixes.
 * Added icons in the mapping UI to set microsite homepage and link to primary page URL and mapped page URL. 
 * Added Selective Global Mapping to select which domains should be mapped globally. 
 * Updated Save Success/Failure messages. 
