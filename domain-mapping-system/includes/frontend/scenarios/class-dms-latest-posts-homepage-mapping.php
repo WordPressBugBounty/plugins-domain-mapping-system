@@ -7,7 +7,7 @@ use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Frontend\Handlers\Force_Redirection_Handler;
 use DMS\Includes\Frontend\Handlers\Mapping_Handler;
 use DMS\Includes\Frontend\Mapping_Objects\Latest_Posts_Homepage_Mapper;
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 class Latest_Posts_Homepage_Mapping implements Mapping_Scenario_Interface {
     /**

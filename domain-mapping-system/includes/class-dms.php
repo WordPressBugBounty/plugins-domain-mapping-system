@@ -185,10 +185,16 @@ final class DMS {
          * Admin Classes
          */
         require_once $this->plugin_dir_path . 'includes/admin/class-dms-admin.php';
+        require_once $this->plugin_dir_path . 'includes/admin/handlers/class-dms-subdomain-authentication-handler.php';
         /**
          * Freemius
          */
         require_once $this->plugin_dir_path . 'includes/class-dms-fs.php';
+        /**
+         * Services
+         */
+        require_once $this->plugin_dir_path . 'includes/services/class-dms-unmapped-scenario-service.php';
+        require_once $this->plugin_dir_path . 'includes/services/class-dms-request-params.php';
         /**
          * Factories
          */
@@ -221,7 +227,6 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/frontend/object-map/class-dms-wp-manga-mapper.php';
         require_once $this->plugin_dir_path . 'includes/frontend/object-map/class-dms-wcfm-store-mapper.php';
         require_once $this->plugin_dir_path . 'includes/frontend/class-dms-mapper-factory.php';
-        require_once $this->plugin_dir_path . 'includes/frontend/services/class-dms-request-params.php';
         /**
          * Migrations
          */

@@ -6,7 +6,7 @@ use DMS\Includes\Data_Objects\Mapping;
 use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Frontend\Handlers\Force_Redirection_Handler;
 use DMS\Includes\Frontend\Handlers\Mapping_Handler;
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 class Simple_Object_Mapping implements Mapping_Scenario_Interface {
     /**

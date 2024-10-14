@@ -2,9 +2,10 @@
 
 namespace DMS\Includes\Admin;
 
+use DMS\Includes\Admin\Handlers\Subdomain_Authentication_Handler;
 use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Freemius;
-use DMS\Includes\Utils\Helper;
+use DMS\Includes\Services\Request_Params;
 /**
  * Admin class which organizes all the admin related functionality
  */
@@ -38,6 +39,20 @@ class Admin {
     public string $version;
 
     /**
+     * Subdomain authentication handler
+     *
+     * @var Subdomain_Authentication_Handler
+     */
+    public Subdomain_Authentication_Handler $subdomain_authentication_handler;
+
+    /**
+     * Request params
+     *
+     * @var Request_Params
+     */
+    public Request_Params $request_params;
+
+    /**
      * Freemius instance
      */
     public ?\Freemius $fs;
@@ -61,7 +76,9 @@ class Admin {
         $this->plugin_url = $plugin_url;
         $this->version = $version;
         $this->fs = Freemius::getInstance()->fs;
+        $this->request_params = new Request_Params();
         $this->define_hooks();
+        $this->inject_main_dependencies();
     }
 
     /**
@@ -80,6 +97,26 @@ class Admin {
         );
         add_action( 'admin_init', array('DMS\\Includes\\Utils\\Helper', 'sync_fs_license') );
         $this->fs->add_action( 'after_uninstall', array('\\DMS\\Includes\\Deactivator', 'uninstall') );
+    }
+
+    /**
+     * Inject main dependencies
+     *
+     * @return void
+     */
+    public function inject_main_dependencies() : void {
+        if ( is_admin() || is_login() ) {
+            $this->define_admin_handlers();
+        }
+    }
+
+    /**
+     * Initialize admin handlers
+     *
+     * @return void
+     */
+    private function define_admin_handlers() {
+        $this->subdomain_authentication_handler = new Subdomain_Authentication_Handler($this->request_params);
     }
 
     /**
@@ -186,7 +223,7 @@ class Admin {
 
     /**
      * Apply title search only
-     * 
+     *
      * @param $where
      * @param $wp_query
      *
@@ -224,7 +261,7 @@ class Admin {
          */
         $dms_data = array(
             'rest_nonce'         => wp_create_nonce( 'wp_rest' ),
-            'site_url'           => site_url(),
+            'site_url'           => home_url(),
             'rest_url'           => $this->get_rest_url(),
             'is_premium'         => (int) $this->fs->can_use_premium_code__premium_only(),
             'upgrade_url'        => $this->fs->get_upgrade_url(),

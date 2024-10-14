@@ -71,4 +71,15 @@ export const settingsData = {
         value: false,
         changed: false,
     },
+    dms_subdomain_authentication: {
+        title: __("Subdomain Authentication", 'domain-mapping-system'),
+        value: false,
+        changed: false,
+    },
+    dms_subdomain_authentication_mappings: {
+        title: __("Selected domains", 'domain-mapping-system'),
+        value: [],
+        changed: false,
+    }
+
 }

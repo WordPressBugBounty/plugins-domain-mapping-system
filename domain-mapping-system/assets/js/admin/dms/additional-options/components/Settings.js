@@ -7,8 +7,9 @@ import Handling404Row from "./fields/Handling404Row";
 import Notice from "../../_components/Notice";
 import {getSettings, updateSetting} from "../../helpers/rest";
 import {settingsData} from "../data/settings";
+import SubdomainAuthenticationRow from "./fields/SubdomainAuthentication";
 
-export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loading, debug}) {
+export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loading, siteUrl, debug}) {
     const [saving, setSaving] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [notices, setNotices] = useState([]);
@@ -20,7 +21,7 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
         // Get settings
         getSettings(restUrl, restNonce, keys).then(res => {
             for (const setting of res) {
-                if (setting.key === 'dms_main_mapping') {
+                if (setting.key === 'dms_main_mapping' || setting.key === 'dms_subdomain_authentication_mappings') {
                     settings[setting.key].value = Array.isArray(setting.value) ? setting.value : [setting.value];
                 } else {
                     settings[setting.key].value = setting.value;
@@ -104,7 +105,8 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
     return <div className="dms-n-additional-accordion-body">
         {showSettings && <ul>
             <GlobalDomainMappingRow slug="dms_global_mapping" slugMaps="dms_main_mapping"
-                                    value={settings.dms_global_mapping.value} selectValue={settings.dms_main_mapping.value}
+                                    value={settings.dms_global_mapping.value}
+                                    selectValue={settings.dms_main_mapping.value}
                                     updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
                                     isPremium={isPremium} upgradeUrl={upgradeUrl}
                                     loading={loading} debug={debug}/>
@@ -141,7 +143,13 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
                             value={settings.dms_unmapped_pages_handling.value}
                             selectValue={settings.dms_unmapped_pages_handling_sc.value} updateValue={setSettings}
                             isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <li>
+            <SubdomainAuthenticationRow slug="dms_subdomain_authentication" slugMaps="dms_subdomain_authentication_mappings"
+                                        value={settings.dms_subdomain_authentication.value}
+                                        selectValue={settings.dms_subdomain_authentication_mappings.value}
+                                        updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
+                                        isPremium={isPremium} upgradeUrl={upgradeUrl}
+                                        loading={loading} siteUrl={siteUrl} debug={debug}/>
+            <li className="dms-n-setting-title">
                 <div className="dms-n-additional-accordion-li">
                     <strong>{__("Yoast SEO", 'domain-mapping-system')}</strong>
                 </div>

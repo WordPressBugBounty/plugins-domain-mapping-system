@@ -1,3 +1,9 @@
+= 2.0.9 =
+* Added icons in the mapping UI to set microsite homepage and link to primary page URL and mapped page URL. 
+* Added Selective Global Mapping to select which domains should be mapped globally. 
+* Updated Save Success/Failure messages. 
+* Stability improvements and bug fixes. 
+
 = 2.0.8 =
 * Freemius integration fix. 
 

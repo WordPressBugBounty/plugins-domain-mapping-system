@@ -4,10 +4,10 @@ import Select from "react-select";
 import {getMappings} from "../../../helpers/rest";
 import {components} from "react-select";
 
-export default function GlobalDomainMappingRow({slug, slugMaps, value, selectValue, updateValue, restUrl, restNonce, isPremium, upgradeUrl, loading}) {
+export default function SubdomainAuthenticationRow( { slug, slugMaps, value, selectValue, updateValue, restUrl, restNonce, isPremium, upgradeUrl, siteUrl, loading } ) {
     const isRtl = isRTL();
     const [mappings, setMappings] = useState([]);
-    const [showSelect, setShowSelect] = useState(false);
+    const [showSelect, setShowSelect] = useState(true);
     const [defaultValue, setDefaultValue] = useState([]);
 
     useEffect(() => {
@@ -21,20 +21,30 @@ export default function GlobalDomainMappingRow({slug, slugMaps, value, selectVal
         loading(true);
         setShowSelect(false);
         getMappings(restUrl, restNonce, 1, -1).then(data => {
-            const mappingsData = data.items.filter(domainMap => domainMap.mapping?.host && domainMap._values?.items?.length).map(domainMap => ({
-                value: domainMap.mapping.id,
-                label: `${domainMap.mapping.host}${domainMap.mapping.path ? '/' + domainMap.mapping.path : ''}`,
-            }));
+            const url = new URL(siteUrl);
+            const baseHost = url.hostname;
+            const mappingsData = data.items
+                .filter(domainMap => {
+                    const host = domainMap.mapping?.host;
+                    // Ensure it's a subdomain by checking for at least one dot before the main domain
+                    return host && host.includes(baseHost) && domainMap._values?.items?.length;
+                })
+                .map(domainMap => ({
+                    value: domainMap.mapping.id,
+                    label: `${domainMap.mapping.host}${domainMap.mapping.path ? '/' + domainMap.mapping.path : ''}`,
+                }));
             setMappings(mappingsData);
             // Set default values
             const values = [];
-            for (const mappingId of selectValue) {
-                const i = mappingsData.findIndex(mapping => mapping.value === +mappingId);
-                if (i !== -1) {
-                    values.push({
-                        value: +mappingId,
-                        label: mappingsData[i].label,
-                    });
+            if (selectValue.length) {
+                for (const mappingId of selectValue) {
+                    const i = mappingsData.findIndex(mapping => mapping.value === +mappingId);
+                    if (i !== -1) {
+                        values.push({
+                            value: +mappingId,
+                            label: mappingsData[i].label,
+                        });
+                    }
                 }
             }
             setDefaultValue(values);
@@ -90,7 +100,8 @@ export default function GlobalDomainMappingRow({slug, slugMaps, value, selectVal
     const Option = ({children, ...props}) => {
         return <components.Option {...props}>
             <label>
-                <input type="checkbox" onChange={() => {}} checked={props.isSelected}/>
+                <input type="checkbox" onChange={() => {
+                }} checked={props.isSelected}/>
                 {children}
             </label>
         </components.Option>;
@@ -106,11 +117,11 @@ export default function GlobalDomainMappingRow({slug, slugMaps, value, selectVal
             </div>
             <div className="dms-n-additional-accordion-content">
                 <span className="label">
-                    <strong>{__("Global Domain Mapping", 'domain-mapping-system')}</strong> - {__("Enable Global Domain Mapping, which means that all pages will be served for all mapped domains.", 'domain-mapping-system')}
+                    <strong>{__("Subdomain Authentication", 'domain-mapping-system')}</strong> - {__("Allow users to login through subdomains of your primary site domain. ", 'domain-mapping-system')}
                 </span>
-                {showSelect && mappings.length > 1 && <>
+                {showSelect && mappings.length >= 1 && <>
                     &nbsp;<span
-                        className="label">{__("Select the domain [+path] to serve for all unmapped pages:", 'domain-mapping-system')}</span>
+                    className="label">{__("Select the domains where you want to activate login:", 'domain-mapping-system')}</span>
                     &nbsp;<Select defaultValue={defaultValue}
                                   options={mappings}
                                   onChange={onSelectsChange}
@@ -125,12 +136,12 @@ export default function GlobalDomainMappingRow({slug, slugMaps, value, selectVal
                                   isMulti={true}
                                   hideSelectedOptions={false}
                                   closeMenuOnSelect={false}/>.
-                    <span className="label"
-                          dangerouslySetInnerHTML={{__html: "&nbsp;" + sprintf(__("Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/global-domain-mapping">', '</a>')}}></span>
-                    {!isPremium && <>
-                        &nbsp;
-                        <a className="upgrade" href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')} &#8594;</a>
-                    </>}
+                </>}
+                <span className="label"
+                      dangerouslySetInnerHTML={{__html: "&nbsp;" + sprintf(__("Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/cross-domain-authentication">', '</a>')}}></span>
+                {!isPremium && <>
+                    &nbsp;
+                    <a className="upgrade" href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')} &#8594;</a>
                 </>}
             </div>
         </div>

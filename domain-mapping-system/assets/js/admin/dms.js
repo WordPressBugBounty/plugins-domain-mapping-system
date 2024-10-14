@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const mapsPerPage = dms_data.mappings_per_page;
     const valuesPerMapping = dms_data.values_per_mapping;
     const availableObjects = dms_data.available_objects;
+    const siteUrl = dms_data.site_url;
     // Remove global variable
     Object.keys(dms_data).forEach(key => delete dms_data[key]);
 
@@ -34,7 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
             <div className="dms-n-row dms-n-additional">
                 <AdditionalOptions isPremium={isPremium} upgradeUrl={upgradeUrl} restUrl={restUrl}
-                                   restNonce={restNonce} debug={debugModeOn}/>
+                                   restNonce={restNonce} siteUrl={siteUrl} debug={debugModeOn}/>
             </div>
             <div className="dms-n-row dms-n-post-types">
                 <AvailablePostTypes availableObjects={availableObjects} isPremium={isPremium} upgradeUrl={upgradeUrl}

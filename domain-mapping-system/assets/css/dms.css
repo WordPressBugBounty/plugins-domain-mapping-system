@@ -159,6 +159,12 @@
   height: 50px;
   display: block;
 }
+.dms-n-setting-title {
+  margin-top: 15px !important;
+}
+.dms-n-config-table-react-select__multi-value__label {
+  text-wrap: wrap !important;
+}
 .dms-n {
   margin-top: 63px;
   padding-right: 20px;
@@ -1004,7 +1010,7 @@
   margin: 0 2px;
   padding-bottom: 0;
   padding-top: 0;
-  color: hsl(0, 0%, 20%);
+  color: hsl(0deg, 0%, 20%);
   box-sizing: border-box;
 }
 .dms-n .dms-n-config-table-favicon {
@@ -1161,7 +1167,7 @@
   max-height: 0;
   overflow: hidden;
 }
-.dms-n .dms-n-additional-accordion-body ul li {
+.dms-n .dms-n-additional-accordion-body ul li:not(.dms-n-multiselect-li) {
   padding: 6px 0;
 }
 .dms-n .dms-n-additional-accordion-li {

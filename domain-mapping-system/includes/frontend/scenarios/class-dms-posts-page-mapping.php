@@ -7,7 +7,7 @@ use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Frontend\Handlers\Force_Redirection_Handler;
 use DMS\Includes\Frontend\Handlers\Mapping_Handler;
 use DMS\Includes\Frontend\Mapping_Objects\Posts_Page_Mapper;
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 class Posts_Page_Mapping extends Simple_Object_Mapping implements Mapping_Scenario_Interface {
     /**

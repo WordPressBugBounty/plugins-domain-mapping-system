@@ -6,7 +6,7 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.7
-Stable tag: 2.0.9
+Stable tag: 2.1.0
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -70,6 +70,9 @@ Whether you’re just looking for the simplicity of multiple domain mapping in a
 
 ## 🛒 WOOCOMMERCE INTEGRATION
 > Map your Shop page and all Products. You can also map a specific product Category and all the products in the category automatically. [PRO]
+
+## 🛒 SUBDOMAIN AUTHENTICATION
+> Allow users to login to subdomains of your site, effectively acting as a standalone site for your Account area or any other protected login pages you want to provide. [PRO]
 
 ## ⏩ WELL-DOCUMENTED SETUP PROCESS
 > Domain Mapping System requires a bit of knowledge about DNS and server side configuration, so we've helped out by [documenting the simple steps](https://docs.domainmappingsystem.com/requirements/server-configuration) you'll need to take. Contact support with any questions.
@@ -397,10 +400,8 @@ We really appreciate your input! We currently don't have a public repo, but you 
 
 == Changelog ==
 
-= 2.0.9 =
-* Stability improvements and bug fixes.
-* Added icons in the mapping UI to set microsite homepage and link to primary page URL and mapped page URL. 
-* Added Selective Global Mapping to select which domains should be mapped globally. 
-* Updated Save Success/Failure messages. 
+= 2.1.0 =
+* Added Subdomain Authentication.
+* Fix for Selective Global mapping mechanism. 
 
 See the full changelog in our [documentation](https://docs.domainmappingsystem.com/changelog/changelog). 

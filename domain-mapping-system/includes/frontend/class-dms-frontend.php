@@ -8,8 +8,8 @@ use DMS\Includes\Freemius;
 use DMS\Includes\Frontend\Handlers\Mapping_Handler;
 use DMS\Includes\Frontend\Handlers\URI_Handler;
 use DMS\Includes\Frontend\Scenarios\Mapping_Scenario;
-use DMS\Includes\Frontend\Services\Request_Params;
 use DMS\Includes\Handlers\WP_Queried_Object_Handler;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 class Frontend {
     /**

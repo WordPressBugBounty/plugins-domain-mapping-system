@@ -2,7 +2,7 @@
 
 namespace DMS\Includes;
 
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 use Exception;
 class Freemius {

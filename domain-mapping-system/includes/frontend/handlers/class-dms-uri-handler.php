@@ -8,7 +8,7 @@ use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Frontend\Frontend;
 use DMS\Includes\Frontend\Scenarios\Global_Archive_Mapping;
 use DMS\Includes\Frontend\Scenarios\Global_Product_Mapping;
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 use Exception;
 use WP_Term;

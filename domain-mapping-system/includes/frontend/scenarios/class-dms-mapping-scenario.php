@@ -5,7 +5,7 @@ namespace DMS\Includes\Frontend\Scenarios;
 use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Frontend\Handlers\Force_Redirection_Handler;
 use DMS\Includes\Frontend\Handlers\Mapping_Handler;
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 class Mapping_Scenario {
     /**
      * The array of Scenario classes

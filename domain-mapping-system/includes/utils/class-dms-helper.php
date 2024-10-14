@@ -488,4 +488,13 @@ class Helper {
 	public static function get_custom_post_types( $output = 'names' ) {
 		return get_post_types( [ '_builtin' => false, 'public' => true ], $output );
 	}
+
+	/**
+	 * Return home url
+	 *
+	 * @return array|false|mixed|null
+	 */
+	public static function get_home_host(){
+		return wp_parse_url( get_home_url(), PHP_URL_HOST );
+	}
 }

@@ -6,7 +6,7 @@ use DMS\Includes\Data_Objects\Mapping;
 use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Frontend\Frontend;
 use DMS\Includes\Frontend\Mapper_Factory;
-use DMS\Includes\Frontend\Services\Request_Params;
+use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 use Exception;
 class Mapping_Handler {

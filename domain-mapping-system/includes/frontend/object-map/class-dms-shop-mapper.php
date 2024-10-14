@@ -3,8 +3,7 @@
 namespace DMS\Includes\Frontend\Mapping_Objects;
 
 use DMS\Includes\Data_Objects\Mapping_Value;
-use DMS\Includes\Frontend\Services\Request_Params;
-use DMS\Includes\Utils\Helper;
+use DMS\Includes\Services\Request_Params;
 use WP_Query;
 
 class Shop_Mapper extends Mapper implements Mapper_Interface {

@@ -21,7 +21,7 @@ class Migration {
 	public function run() {
 		$this->run_migration_200();
 		$this->run_migration_207();
-		$this->run_migration_208();
+		$this->run_migration_209();
 	}
 
 	public function run_migration_200() {
@@ -157,15 +157,15 @@ class Migration {
 		}
 	}
 
-	public function run_migration_208() {
-		if ( $this->version >= 208 ) {
-			$setting = Setting::find( 'dms_migration_208' );
-			if ( empty( $setting->get_value() ) ) {
-				$setting = Setting::find( 'dms_main_mapping' );
-				if ( ! empty( $setting->get_value() ) && ! is_array( $setting->get_value() ) ) {
-					Setting::update( [ 'key' => 'dms_main_mapping', 'value' => $setting->get_value() ] );
+	public function run_migration_209() {
+		if ( $this->version >= 209 ) {
+			$is_migrated = Setting::find( 'dms_migration_209' )->get_value();
+			if ( empty( $is_migrated ) ) {
+				$setting = Setting::find( 'dms_main_mapping' )->get_value();
+				if ( ! empty( $setting ) && ! is_array( $setting ) ) {
+					Setting::update( [ 'key' => 'dms_main_mapping', 'value' => array( $setting ) ] );
 				}
-				Setting::create( [ 'key' => 'dms_migration_208', 'value' => '1' ] );
+				Setting::create( [ 'key' => 'dms_migration_209', 'value' => '1' ] );
 			}
 		}
 	}

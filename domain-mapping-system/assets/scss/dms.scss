@@ -41,6 +41,14 @@
       display: block;
     }
   }
+  
+  &-setting-title{
+    margin-top: 15px !important;
+  }
+  
+  &-config-table-react-select__multi-value__label{
+    text-wrap: wrap !important;
+  }
 
   & {
     margin-top: 63px; //TODO
@@ -1129,7 +1137,7 @@
             overflow: hidden;
 
             ul {
-              li {
+              li:not(.dms-n-multiselect-li) {
                 padding: 6px 0;
               }
             }
