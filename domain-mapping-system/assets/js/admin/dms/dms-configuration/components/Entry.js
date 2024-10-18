@@ -4,7 +4,7 @@ import Tooltip from "../../_components/Tooltip";
 import SelectField from "./fields/Select";
 import MediaUploader from "./utilities/MediaUploader";
 import {createMapping, createMappingValues, getMappingValues, updateMapping, updateMappingValues} from "../../helpers/rest";
-import {dataValue} from "../helpers/helper";
+import {dataValue, dataValueToSelectValue, optionValue} from "../helpers/helper";
 
 const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry, deleteRow, rendered, openByDefault, isPremium, upgradeUrl, restUrl, restNonce, valuesPerPage, debug}, ref) => {
     const [open, setOpen] = useState(openByDefault);
@@ -13,10 +13,11 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
     const [valuesPaged, setValuesPaged] = useState(1);
     const [totalValues, setTotalValues] = useState(0);
     const [mappingValues, setMappingValues] = useState([]);
-    const [newMappingValues, setNewMappingValues] = useState([]);
+    const newMappingValues = useRef([]);
     const [optionsLoaded, setOptionsLoaded] = useState(false);
     const [customHtml, setCustomHtml] = useState('');
     const [favicon, setFavicon] = useState({id: false});
+    const allMappingValues = useRef([]);
     // Handel change of the entry
     const changed = useRef({
         host: false,
@@ -30,7 +31,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
         save() {
             if (Object.values(changed.current).some(c => c)) {
                 // Requires at least one option
-                if (!newMappingValues.length) {
+                if (!newMappingValues.current.length) {
                     return new Promise((resolve) => {
                         resolve({
                             type: 'error',
@@ -41,8 +42,8 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                     });
                 } else {
                     // Check homepage for primary
-                    // const i = newMappingValues.findIndex(value => value.type === 'posts_homepage');
-                    // if (i !== -1 && !newMappingValues[i].primary) {
+                    // const i = newMappingValues.current.findIndex(value => value.type === 'posts_homepage');
+                    // if (i !== -1 && !newMappingValues.current[i].primary) {
                     //     return new Promise((resolve) => {
                     //         resolve({
                     //             type: 'error',
@@ -96,7 +97,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
             // Update entry
             updateEntry(res, data.uniqueKey);
             // Create values
-            return createMappingValues(restUrl, restNonce, res.mapping.id, newMappingValues).then(res2 => {
+            return createMappingValues(restUrl, restNonce, res.mapping.id, newMappingValues.current).then(res2 => {
                 const newData = JSON.parse(JSON.stringify(mappingValues));
                 for (const methodData of res2) {
                     if (!methodData.data?.length) {
@@ -109,9 +110,10 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                 }
                 // Update already saved data state
                 setMappingValues(newData);
+                allMappingValues.current = newData;
                 setTotalValues(newData.length);
                 // Reset new values state
-                setNewMappingValues([]);
+                newMappingValues.current = [];
                 // Reset
                 changed.current.mappingValues = false;
                 return {
@@ -190,25 +192,71 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
     }
 
     /**
+     * Set all mapping values
+     *
+     * @return {Promise<boolean>}
+     */
+    const setAllMappingValues = async () => {
+        // Get all mapping values if didn't
+        if (!allMappingValues.current.length) {
+            try {
+                const amv = await getMappingValues(restUrl, restNonce, data.mapping.id, 1, -1);
+                allMappingValues.current = amv.items;
+                setTotalValues(+amv._total);
+            } catch (e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Update mapping with values
      *
      * @return {Promise<{type: string, message: string, info: string|undefined}>}
      */
     const update = () => {
-        return updateMap().then(res => {
+        return updateMap().then(async res => {
             if (changed.current.mappingValues) {
+                // Get all mappings
+                const result = await setAllMappingValues();
+                if (!result) {
+                    return new Promise((resolve) => {
+                        resolve({
+                            type: 'error',
+                            message: __("Failed to update mapping values.", 'domain-mapping-system'),
+                            info: `${host}${path ? '/' + path : ''}`,
+                        });
+                    });
+                }
                 // Get values that should be deleted
                 const mappingValuesToDelete = [];
                 for (const object of mappingValues) {
                     // If saved object (just for sure)
                     if (object.value.id) {
                         // If it doesn't exist in the new list then should be deleted
-                        if (newMappingValues.findIndex(newValue => newValue.value === dataValue(object.value)) === -1) {
+                        if (newMappingValues.current.findIndex(newValue => newValue.value === dataValue(object.value)) === -1) {
                             mappingValuesToDelete.push({id: object.value.id});
                         }
                     }
                 }
-                return updateMappingValues(restUrl, restNonce, data.mapping.id, newMappingValues, mappingValuesToDelete).then(res2 => {
+                // Check values to not duplicate data
+                newMappingValues.current = newMappingValues.current.map(obj => {
+                    if (obj.id) {
+                        return obj;
+                    }
+                    // Check existence in all values
+                    const ov = optionValue(obj);
+                    const i = allMappingValues.current.findIndex(mv => ov === dataValue(mv.value));
+                    if (i !== -1) {
+                        return {
+                            ...dataValueToSelectValue(allMappingValues.current[i]),
+                            ...obj,
+                        };
+                    }
+                    return obj;
+                });
+                return updateMappingValues(restUrl, restNonce, data.mapping.id, newMappingValues.current, mappingValuesToDelete).then(res2 => {
                     const newData = JSON.parse(JSON.stringify(mappingValues));
                     let totalsDiff = 0;
                     for (const methodData of res2) {
@@ -218,6 +266,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                         if (methodData.method === 'create') {
                             // Add new data
                             newData.push(...methodData.data);
+                            allMappingValues.current.push(...methodData.data);
                             totalsDiff += methodData.data.length;
                         } else if (methodData.method === 'update') {
                             // Update existing data
@@ -225,6 +274,14 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                                 const i = newData.findIndex(obj => obj.value.id === datum.value.id);
                                 if (i !== -1) {
                                     newData[i] = datum;
+                                } else {
+                                    // Add data that has been selected but already saved to values not yet loaded
+                                    newData.push(datum);
+                                }
+                                // Update data in all mapping values
+                                const j = allMappingValues.current.findIndex(obj => obj.value.id === datum.value.id);
+                                if (j !== -1) {
+                                    allMappingValues.current[j] = datum;
                                 }
                             }
                         }
@@ -237,13 +294,18 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                                 newData.splice(i, 1);
                                 totalsDiff--;
                             }
+                            // Delete data from the all mapping values
+                            const j = allMappingValues.current.findIndex(obj => obj.value.id === datum.id);
+                            if (j !== -1) {
+                                allMappingValues.current.splice(j, 1);
+                            }
                         }
                     }
                     // Update already saved data state
                     setMappingValues(newData);
                     setTotalValues(totalValues + totalsDiff);
                     // Reset new values state
-                    setNewMappingValues([]);
+                    newMappingValues.current = [];
                     // Reset
                     changed.current.mappingValues = false;
                     return {
@@ -301,8 +363,27 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
      * @param {boolean} justLoaded Just loading data or not
      */
     const mappingValuesChanged = (selects, justLoaded = false) => {
-        setNewMappingValues(selects);
+        newMappingValues.current = selects;
         !justLoaded && (changed.current.mappingValues = true);
+    }
+
+    /**
+     * Check and keep correct data, mainly already saved data
+     *
+     * @param {object[]} selects Selects
+     * @return {object[]}
+     */
+    const checkSelects = (selects) => {
+        return selects.map(select => {
+            if (!select.id) {
+                const ov = optionValue(select);
+                const i = mappingValues.findIndex(value => ov === dataValue(value.value));
+                if (i !== -1) {
+                    return dataValueToSelectValue(mappingValues[i]);
+                }
+            }
+            return select;
+        });
     }
 
     /**
@@ -383,10 +464,11 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                                 </p>
                                 {isPremium && <Tooltip/>}
                             </div>
-                            <div className="dms-n-config-table-body">
+                            <div className="dms-n-config-table-body dms-n-config-table-body-select">
                                 {optionsLoaded && <SelectField selectedData={mappingValues}
                                                                defaultObjects={defaultObjects}
                                                                changed={mappingValuesChanged}
+                                                               checkSelects={checkSelects}
                                                                totalValues={totalValues} updateTotals={setTotalValues}
                                                                getMoreValues={getMoreValues}
                                                                rendered={() => rendered(index)}

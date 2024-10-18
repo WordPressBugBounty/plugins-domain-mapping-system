@@ -45,10 +45,6 @@
   &-setting-title{
     margin-top: 15px !important;
   }
-  
-  &-config-table-react-select__multi-value__label{
-    text-wrap: wrap !important;
-  }
 
   & {
     margin-top: 63px; //TODO
@@ -675,6 +671,10 @@
               line-height: 1;
               cursor: pointer;
             }
+
+            &-select {
+              flex-direction: column;
+            }
           }
 
           &-input {
@@ -744,6 +744,7 @@
 
               &-container {
                 margin: 0;
+                order: 3;
               }
             }
 
@@ -769,6 +770,13 @@
 
             &__multi {
               &-value {
+                order: 1;
+
+                &__label {
+                  // Fixed issue of the wide select box
+                  text-wrap: wrap !important;
+                }
+
                 &__link {
                   display: flex;
                   align-items: center;
@@ -915,6 +923,7 @@
               display: flex;
               justify-content: center;
               padding: 5px;
+              order: 2;
 
               button {
                 cursor: pointer;

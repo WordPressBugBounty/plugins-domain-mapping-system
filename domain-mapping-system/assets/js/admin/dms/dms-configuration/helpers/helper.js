@@ -58,10 +58,9 @@ export const dataValueToSelectValue = (data) => ({
  * Parse searched data to select option
  *
  * @param {object} data Searched data
- * @param {object[]} selectedData Selected data
- * @return {{link, label, isDisabled: {boolean}, type, value}}
+ * @return {{link, label, isDisabled: boolean, type, value: `${string}-${string}`, objectId, primary: boolean}}
  */
-export const parseSearchedDataToOption = (data, selectedData) => {
+export const parseSearchedDataToOption = (data) => {
     const value = optionValue({objectId: data.id, type: data.type});
 
     return {
@@ -71,7 +70,7 @@ export const parseSearchedDataToOption = (data, selectedData) => {
         type: data.type,
         link: data.link,
         primary: false,
-        isDisabled: selectedData.some(item => value === dataValue(item.value)),
+        isDisabled: false,
     }
 };
 
@@ -79,11 +78,10 @@ export const parseSearchedDataToOption = (data, selectedData) => {
  * Parse response data to UI options
  *
  * @param {object[]} data Data
- * @param {object[]} selectedData Selected data
  * @param {boolean} debug Debug
  * @return {*[]}
  */
-export const parseSearchedDataToGroupOptions = (data, selectedData, debug) => {
+export const parseSearchedDataToGroupOptions = (data, debug) => {
     const optionsGroups = [];
     try {
         for (const groupData of data) {
@@ -97,7 +95,7 @@ export const parseSearchedDataToGroupOptions = (data, selectedData, debug) => {
             };
             if (groupData._objects?.objects?.length) {
                 for (const object of groupData._objects.objects) {
-                    group.options.push(parseSearchedDataToOption(object, selectedData));
+                    group.options.push(parseSearchedDataToOption(object));
                 }
             }
             optionsGroups.push(group);

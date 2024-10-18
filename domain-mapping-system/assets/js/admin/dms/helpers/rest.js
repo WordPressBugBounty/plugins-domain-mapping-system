@@ -32,7 +32,7 @@ export const getMappings = (restUrl, restNonce, paged = 1, perPage= 20, includeM
  * @param {number} perPage Per page
  * @return {Promise<any>}
  */
-export const getMappingValues = (restUrl, restNonce, id, paged = 0, perPage = 20) => {
+export const getMappingValues = (restUrl, restNonce, id, paged = 1, perPage = 20) => {
     return fetch(`${restUrl}mappings/${id}/values?include[]=mapped_link&include[]=object&paged=${paged}&per_page=${perPage}`, {
         headers: {
             'X-WP-Nonce': restNonce

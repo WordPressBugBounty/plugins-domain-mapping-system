@@ -5,11 +5,11 @@ import MultiValueLabel from "./Select/MultiValueLabel"
 import SingleValue from "./Select/SingleValue"
 import LoadingIndicator from "./Select/Loading"
 import Group from "./Select/Group"
-import Input from "./Select/Input";
 import {loadMoreObjects, searchObject} from "../../../helpers/rest";
 import {dataValue, dataValueToSelectValue, debounce, optionValue, parseSearchedDataToGroupOptions, parseSearchedDataToOption} from "../../helpers/helper";
+import LoadMoreValues from "./Select/LoadMoreValues";
 
-export default function Select({selectedData, defaultObjects, changed, totalValues, updateTotals, getMoreValues, rendered, restUrl, restNonce, isPremium, debug}) {
+export default function Select({selectedData, defaultObjects, changed, checkSelects, totalValues, updateTotals, getMoreValues, rendered, restUrl, restNonce, isPremium, debug}) {
     const isRtl = isRTL();
     const [hasMoreValues, setHasMoreValues] = useState(false);
     const [defaultValues, setDefaultValues] = useState([]);
@@ -17,30 +17,29 @@ export default function Select({selectedData, defaultObjects, changed, totalValu
     const [searchTerm, setSearchTerm] = useState('');
     const [selectKey, setSelectKey] = useState(0);
     const selectRef = useRef(null);
-    const initMenu = useRef(0);
-    const [menuOpened, setMenuOpened] = useState(false);
+    const menuOpened = useRef(false);
 
     useEffect(() => {
         if (Array.isArray(defaultObjects)) {
-            setOptions(parseSearchedDataToGroupOptions(defaultObjects, selectedData, debug));
+            setOptions(parseSearchedDataToGroupOptions(defaultObjects, debug));
             rendered();
         }
     }, [defaultObjects]);
 
     useEffect(() => {
         // Update saved data (to show globe icon automatically)
-        const newDefaultValuesState = [
+        const newDefaultValuesState = checkSelects([
             ...selectedData.map(dataValueToSelectValue),
             ...defaultValues.filter(obj => selectedData.findIndex(item => optionValue(obj) === dataValue(item.value)) === -1),
-        ];
+        ]);
         setDefaultValues(newDefaultValuesState);
         changed(newDefaultValuesState, true);
         setSelectKey((selectKey + 1) % 2);
     }, [selectedData]);
 
     useEffect(() => {
-        setHasMoreValues(totalValues > defaultValues.filter(obj => obj.id).length);
-    }, [totalValues, defaultValues]);
+        setHasMoreValues(isPremium && totalValues > defaultValues.filter(obj => obj.id).length);
+    }, [isPremium, totalValues, defaultValues]);
 
     /**
      * Make an item primary
@@ -48,12 +47,14 @@ export default function Select({selectedData, defaultObjects, changed, totalValu
      * @param {string|number} value Option value
      */
     const makePrimary = (value) => {
-        const selects = defaultValues.map(data => {
+        const selects = checkSelects(defaultValues.map(data => {
             data.primary = data.value === value;
             return data;
-        });
+        }));
         setDefaultValues(selects);
         changed(selects);
+        // To fix the stuck issue when clicking on the home icon
+        setTimeout(() => selectRef.current?.focus(), 10);
     }
 
     /**
@@ -64,11 +65,9 @@ export default function Select({selectedData, defaultObjects, changed, totalValu
      */
     const getOptions = (inputValue, callback) => {
         setSearchTerm(inputValue);
-        // Reset init
-        initMenu.current = 0;
         // Search objects
         return searchObject(restUrl, restNonce, inputValue).then(data => {
-            const foundOptions = parseSearchedDataToGroupOptions(data, selectedData, debug);
+            const foundOptions = parseSearchedDataToGroupOptions(data, debug);
             setOptions(foundOptions);
             callback(foundOptions);
         }).catch(e => debug && console.error(e)).finally(() => {
@@ -82,7 +81,7 @@ export default function Select({selectedData, defaultObjects, changed, totalValu
      *
      * @type {(function(...[*]): void)|*}
      */
-    const loadOptions = React.useCallback(debounce(getOptions), []);
+    const loadOptions = React.useCallback(debounce(getOptions, 350), []);
 
     /**
      * Load more
@@ -104,18 +103,19 @@ export default function Select({selectedData, defaultObjects, changed, totalValu
                         ...group,
                         pagination: data._pagination,
                         key: `${groupName}:${data._pagination?.current_page}:${data._pagination?.per_page}`,
-                        options: [...group.options, ...data.objects.map(item => parseSearchedDataToOption(item, selectedData))]
+                        options: [...group.options, ...data.objects.map(item => parseSearchedDataToOption(item))]
                     }
                 }
                 return group;
             });
             setOptions(newOptions);
-            const resetDropdown = !initMenu.current++;
-            resetDropdown && setSelectKey((selectKey + 1) % 2);
             // Check for more pages
             return {
                 hasMorePages: data._pagination?.total_pages > page,
-                callback: resetDropdown ? () => setTimeout(() => setMenuOpened(true), 10) : null,
+                callback: () => setTimeout(() => {
+                    selectRef.current?.focus();
+                    selectRef.current?.openMenu('first');
+                }, 10),
             };
         });
     }
@@ -159,40 +159,60 @@ export default function Select({selectedData, defaultObjects, changed, totalValu
             }));
             updateTotals(prevState => --prevState);
         }
-        setDefaultValues(selects);
-        changed(selects);
+        const checkedSelects = checkSelects(selects);
+        setDefaultValues(checkedSelects);
+        changed(checkedSelects);
     }
 
     return (
-        <AsyncSelect key={selectKey}
-                     ref={(el) => selectRef.current = el}
-                     cacheOptions
-                     defaultOptions={options}
-                     loadOptions={loadOptions}
-                     onChange={onSelectsChange}
-                     defaultValue={defaultValues}
-                     components={{
-                         Group: (props) => <Group props={props} loadMore={loadMore} debug={debug}/>,
-                         MultiValueLabel: (props) => <MultiValueLabel props={props} makePrimary={makePrimary} isPremium={isPremium}/>,
-                         Input: (props) => <Input props={props} hasMore={hasMoreValues} getValues={getMoreValues} toggleMenu={() => !menuOpened && setMenuOpened(true)} isPremium={isPremium}/>,
-                         SingleValue,
-                         LoadingIndicator,
-                     }}
-                     className="dms-n-config-table-react-select"
-                     classNamePrefix="dms-n-config-table-react-select"
-                     placeholder={__('The choice is yours.', 'domain-mapping-system')}
-                     onMenuOpen={() => setMenuOpened(true)}
-                     onMenuClose={() => {
-                         selectRef.current?.blur();
-                         setMenuOpened(false);
-                     }}
-                     menuIsOpen={menuOpened}
-                     closeMenuOnSelect={!isPremium}
-                     openMenuOnClick={false}
-                     openMenuOnFocus={false}
-                     isRtl={isRtl}
-                     isMulti={isPremium}
-                     isClearable={true}
-                     hideSelectedOptions={false}/>
+        <>
+            <AsyncSelect key={selectKey}
+                         ref={(el) => {
+                             selectRef.current = el;
+                             // Open menu on the values container's space part
+                             selectRef.current?.inputRef.parentNode?.parentNode?.addEventListener('click', (e) => {
+                                 if (e.target.classList.contains("dms-n-config-table-react-select__value-container")) {
+                                     selectRef.current?.focus();
+                                     selectRef.current?.openMenu('first');
+                                 }
+                             });
+                             // Open menu on the input container click
+                             selectRef.current?.inputRef.parentNode?.addEventListener('click', () => {
+                                 selectRef.current?.focus();
+                                 selectRef.current?.openMenu('first');
+                             });
+                         }}
+                         cacheOptions
+                         defaultOptions={options}
+                         loadOptions={loadOptions}
+                         onChange={onSelectsChange}
+                         defaultValue={defaultValues}
+                         components={{
+                             Group: (props) => <Group props={props} loadMore={loadMore} debug={debug}/>,
+                             MultiValueLabel: (props) => <MultiValueLabel props={props} makePrimary={makePrimary} isPremium={isPremium}/>,
+                             SingleValue,
+                             LoadingIndicator,
+                         }}
+                         className="dms-n-config-table-react-select dms-n-config-table-react-select__multi-value__label"
+                         classNamePrefix="dms-n-config-table-react-select"
+                         placeholder={__('The choice is yours.', 'domain-mapping-system')}
+                         onMenuOpen={() => menuOpened.current = true}
+                         onMenuClose={() => {
+                             // selectRef.current?.blur();
+                             menuOpened.current = false;
+                             // Reset menu items to the main state
+                             if (Array.isArray(defaultObjects)) {
+                                 setOptions(parseSearchedDataToGroupOptions(defaultObjects, debug));
+                             }
+                         }}
+                         closeMenuOnSelect={!isPremium}
+                         openMenuOnClick={false}
+                         openMenuOnFocus={false}
+                         isRtl={isRtl}
+                         isMulti={isPremium}
+                         isClearable={true}
+                         hideSelectedOptions={false}/>
+            <LoadMoreValues hasMore={hasMoreValues} getValues={getMoreValues}/>
+        </>
     )
 }

@@ -162,9 +162,6 @@
 .dms-n-setting-title {
   margin-top: 15px !important;
 }
-.dms-n-config-table-react-select__multi-value__label {
-  text-wrap: wrap !important;
-}
 .dms-n {
   margin-top: 63px;
   padding-right: 20px;
@@ -748,6 +745,10 @@
   line-height: 1;
   cursor: pointer;
 }
+.dms-n .dms-n-config-table-body-select {
+  -ms-flex-direction: column;
+      flex-direction: column;
+}
 .dms-n .dms-n-config-table-input {
   width: 100%;
   height: 38px;
@@ -811,6 +812,8 @@
 }
 .dms-n .dms-n-config-table-react-select__input-container {
   margin: 0;
+  -ms-flex-order: 3;
+      order: 3;
 }
 .dms-n .dms-n-config-table-react-select__single-value {
   display: -ms-flexbox;
@@ -831,6 +834,13 @@
 .dms-n .dms-n-config-table-react-select__single-value__link svg {
   width: 20px;
   height: 20px;
+}
+.dms-n .dms-n-config-table-react-select__multi-value {
+  -ms-flex-order: 1;
+      order: 1;
+}
+.dms-n .dms-n-config-table-react-select__multi-value__label {
+  text-wrap: wrap !important;
 }
 .dms-n .dms-n-config-table-react-select__multi-value__link {
   display: -ms-flexbox;
@@ -951,6 +961,8 @@
   -ms-flex-pack: center;
       justify-content: center;
   padding: 5px;
+  -ms-flex-order: 2;
+      order: 2;
 }
 .dms-n .dms-n-config-table-react-select__loadmore button {
   cursor: pointer;
@@ -1010,7 +1022,7 @@
   margin: 0 2px;
   padding-bottom: 0;
   padding-top: 0;
-  color: hsl(0deg, 0%, 20%);
+  color: hsl(0, 0%, 20%);
   box-sizing: border-box;
 }
 .dms-n .dms-n-config-table-favicon {
