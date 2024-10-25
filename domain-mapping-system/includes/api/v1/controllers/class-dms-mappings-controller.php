@@ -3,6 +3,7 @@
 namespace DMS\Includes\Api\V1\Controllers;
 
 use DMS\Includes\Data_Objects\Mapping;
+use DMS\Includes\Data_Objects\Mapping_Meta;
 use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Exceptions\DMS_Exception;
@@ -189,10 +190,13 @@ class Mappings_Controller extends Rest_Controller {
 			$limit    = (int) $request->get_param( 'limit' );
 			$include = $request->get_param('include');
 			$mappings = Mapping::where( [], $paged, $limit );
-			if ($include == 'mapping_values') {
+			if ( in_array( 'mapping_values', $include ) ) {
 				$mappings = $this->prepare_values( $mappings );
 			} else {
 				$mappings = $this->prepare_values_links( $mappings );
+			}
+			if ( in_array( 'mapping_metas', $include ) ) {
+				$mappings = $this->prepare_metas( $mappings, $request->get_param( 'meta_keys' ) );
 			}
 			$mappings = $this->prepare_total_count( $mappings );
 			$mappings = $this->prepare_attachment_links( $mappings );
@@ -203,6 +207,29 @@ class Mappings_Controller extends Rest_Controller {
 
 			return Helper::get_wp_error( $e );
 		}
+	}
+
+	/**
+	 * Get mapping metas
+	 *
+	 * @param $mappings
+	 * @param $meta_keys
+	 *
+	 * @return array
+	 */
+	public function prepare_metas( $mappings, $meta_keys ): array {
+		foreach ( $mappings as $key => $mapping ) {
+			if ( empty( $meta_keys ) ) {
+				$mappings[$key]['_mapping_meta'] = $mapping['mapping']->get_metas();
+			} else {
+				$mappings[$key]['_mapping_meta'] = Mapping_Meta::where( [
+					'mapping_id' => $mapping['mapping']->get_id(),
+					'key'        => $meta_keys
+				] );
+			}
+		}
+
+		return $mappings;
 	}
 
 	/**
@@ -318,7 +345,7 @@ class Mappings_Controller extends Rest_Controller {
 	 *
 	 * @param $request
 	 *
-	 * @return DMS_Exception|WP_Error|WP_HTTP_Response|WP_REST_Response
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 */
 	public function create_item( $request ) {
 		try {

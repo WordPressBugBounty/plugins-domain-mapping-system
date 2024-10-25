@@ -3,10 +3,18 @@ import {__} from "@wordpress/i18n";
 import Tooltip from "../../_components/Tooltip";
 import SelectField from "./fields/Select";
 import MediaUploader from "./utilities/MediaUploader";
-import {createMapping, createMappingValues, getMappingValues, updateMapping, updateMappingValues} from "../../helpers/rest";
+import {
+    createMapping,
+    createMappingValues,
+    getMappingValues,
+    updateMapping,
+    updateMappingValues,
+    mappingMetaBatch
+} from "../../helpers/rest";
 import {dataValue, dataValueToSelectValue, optionValue} from "../helpers/helper";
+import LanguageDropdown from "./utilities/LanguageDropdown";
 
-const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry, deleteRow, rendered, openByDefault, isPremium, upgradeUrl, restUrl, restNonce, valuesPerPage, debug}, ref) => {
+const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry, deleteRow, rendered, openByDefault, isPremium, upgradeUrl, restUrl, restNonce, valuesPerPage, languages, isMultilingual, debug}, ref) => {
     const [open, setOpen] = useState(openByDefault);
     const [host, setHost] = useState('');
     const [path, setPath] = useState('');
@@ -18,6 +26,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
     const [customHtml, setCustomHtml] = useState('');
     const [favicon, setFavicon] = useState({id: false});
     const allMappingValues = useRef([]);
+    const [selectedLocale, setSelectedLocale] = useState('');
     // Handel change of the entry
     const changed = useRef({
         host: false,
@@ -25,6 +34,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
         mappingValues: false,
         customHtml: false,
         favicon: false,
+        locale: false,
     });
 
     useImperativeHandle(ref, () => ({
@@ -78,14 +88,21 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                 src: data._links?.attachment_url || '',
             });
         }
+        if (isMultilingual && data._mapping_meta?.length) {
+            const locales = data._mapping_meta.filter(meta => meta.key === 'locale');
+            if (locales.length > 0) {
+                const locale = locales[0].value;
+                setSelectedLocale(locale);
+            }
+        }
         // Set mapping values
         if (data._values?.items?.length) {
-            const values= isPremium ? data._values.items : data._values.items.filter(mv => mv.value.primary);
+            const values = isPremium ? data._values.items : data._values.items.filter(mv => mv.value.primary);
             setMappingValues(values);
             setTotalValues(isPremium ? +data._values._total : 1);
         }
         setOptionsLoaded(true);
-    }, []);
+    }, [data, isMultilingual, isPremium]);
 
     /**
      * Create mapping with values
@@ -96,37 +113,46 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
         return createMapping(restUrl, restNonce, {favicon, customHtml, host, path}).then(res => {
             // Update entry
             updateEntry(res, data.uniqueKey);
-            // Create values
-            return createMappingValues(restUrl, restNonce, res.mapping.id, newMappingValues.current).then(res2 => {
-                const newData = JSON.parse(JSON.stringify(mappingValues));
-                for (const methodData of res2) {
-                    if (!methodData.data?.length) {
-                        continue;
-                    }
-                    if (methodData.method === 'create') {
-                        // Add new data
-                        newData.push(...methodData.data);
-                    }
-                }
-                // Update already saved data state
-                setMappingValues(newData);
-                allMappingValues.current = newData;
-                setTotalValues(newData.length);
-                // Reset new values state
-                newMappingValues.current = [];
-                // Reset
-                changed.current.mappingValues = false;
-                return {
-                    type: 'success',
-                    message: __("Item saved successfully!", 'domain-mapping-system'),
-                };
-            }).catch(e => {
-                debug && console.error(e);
+            return createMapMeta(res.mapping.id).catch(metaError => {
+                debug && console.error(metaError);
                 return {
                     type: 'error',
-                    message: __("Failed to create mapping values.", 'domain-mapping-system'),
+                    message: __("Failed to update metadata.", 'domain-mapping-system'),
                     info: `${host}${path ? '/' + path : ''}`,
                 };
+            }).then(data => {
+                // Create values
+                return createMappingValues(restUrl, restNonce, res.mapping.id, newMappingValues.current).then(res2 => {
+                    const newData = JSON.parse(JSON.stringify(mappingValues));
+                    for (const methodData of res2) {
+                        if (!methodData.data?.length) {
+                            continue;
+                        }
+                        if (methodData.method === 'create') {
+                            // Add new data
+                            newData.push(...methodData.data);
+                        }
+                    }
+                    // Update already saved data state
+                    setMappingValues(newData);
+                    allMappingValues.current = newData;
+                    setTotalValues(newData.length);
+                    // Reset new values state
+                    newMappingValues.current = [];
+                    // Reset
+                    changed.current.mappingValues = false;
+                    return {
+                        type: 'success',
+                        message: __("Item saved successfully!", 'domain-mapping-system'),
+                    };
+                }).catch(e => {
+                    debug && console.error(e);
+                    return {
+                        type: 'error',
+                        message: __("Failed to create mapping values.", 'domain-mapping-system'),
+                        info: `${host}${path ? '/' + path : ''}`,
+                    };
+                });
             });
         }).catch(e => {
             debug && console.error(e);
@@ -192,6 +218,65 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
     }
 
     /**
+     * Update mapping meta
+     *
+     * @returns {Promise<unknown>|Promise<{type: string, message: string}>}
+     */
+    const updateMapMeta = () => {
+        if (changed.current.locale) {
+            const updateData = [{
+                mapping_id: data.mapping.id,
+                key: 'locale',
+                value: selectedLocale.locale,
+            }];
+            return mappingMetaBatch(restUrl, restNonce, data.mapping.id, null, updateData, null).then(res => {
+                changed.current.locale = false;
+                return {
+                    type: 'success',
+                    message: __("Item saved successfully!", 'domain-mapping-system'),
+                };
+            })
+        } else {
+            return new Promise((resolve) => {
+                resolve({
+                    type: 'success',
+                    message: __("Item saved successfully!", 'domain-mapping-system'),
+                });
+            });
+        }
+    }
+
+    /**
+     * Create mapping meta
+     *
+     * @param mappingId
+     * @returns {Promise<unknown>|Promise<{type: string, message: string}>}
+     */
+    const createMapMeta = (mappingId) => {
+        if (changed.current.locale) {
+            const createData = [{
+                mapping_id: mappingId,
+                key: 'locale',
+                value: selectedLocale.locale,
+            }]
+            return mappingMetaBatch(restUrl, restNonce, data.mapping.id, createData, null, null).then(res => {
+                changed.current.locale = false;
+                return {
+                    type: 'success',
+                    message: __("Item saved successfully!", 'domain-mapping-system'),
+                };
+            })
+        } else {
+            return new Promise((resolve) => {
+                resolve({
+                    type: 'success',
+                    message: __("Item saved successfully!", 'domain-mapping-system'),
+                });
+            });
+        }
+    }
+
+    /**
      * Set all mapping values
      *
      * @return {Promise<boolean>}
@@ -217,115 +302,124 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
      */
     const update = () => {
         return updateMap().then(async res => {
-            if (changed.current.mappingValues) {
-                // Get all mappings
-                const result = await setAllMappingValues();
-                if (!result) {
-                    return new Promise((resolve) => {
-                        resolve({
+            return updateMapMeta().catch(metaError => {
+                debug && console.error(metaError);
+                return {
+                    type: 'error',
+                    message: __("Failed to update metadata.", 'domain-mapping-system'),
+                    info: `${host}${path ? '/' + path : ''}`,
+                };
+            }).then(async res => {
+                if (changed.current.mappingValues) {
+                    // Get all mappings
+                    const result = await setAllMappingValues();
+                    if (!result) {
+                        return new Promise((resolve) => {
+                            resolve({
+                                type: 'error',
+                                message: __("Failed to update mapping values.", 'domain-mapping-system'),
+                                info: `${host}${path ? '/' + path : ''}`,
+                            });
+                        });
+                    }
+                    // Get values that should be deleted
+                    const mappingValuesToDelete = [];
+                    for (const object of mappingValues) {
+                        // If saved object (just for sure)
+                        if (object.value.id) {
+                            // If it doesn't exist in the new list then should be deleted
+                            if (newMappingValues.current.findIndex(newValue => newValue.value === dataValue(object.value)) === -1) {
+                                mappingValuesToDelete.push({id: object.value.id});
+                            }
+                        }
+                    }
+                    // Check values to not duplicate data
+                    newMappingValues.current = newMappingValues.current.map(obj => {
+                        if (obj.id) {
+                            return obj;
+                        }
+                        // Check existence in all values
+                        const ov = optionValue(obj);
+                        const i = allMappingValues.current.findIndex(mv => ov === dataValue(mv.value));
+                        if (i !== -1) {
+                            return {
+                                ...dataValueToSelectValue(allMappingValues.current[i]),
+                                ...obj,
+                            };
+                        }
+                        return obj;
+                    });
+                    return updateMappingValues(restUrl, restNonce, data.mapping.id, newMappingValues.current, mappingValuesToDelete).then(res2 => {
+                        const newData = JSON.parse(JSON.stringify(mappingValues));
+                        let totalsDiff = 0;
+                        for (const methodData of res2) {
+                            if (!methodData.data?.length) {
+                                continue;
+                            }
+                            if (methodData.method === 'create') {
+                                // Add new data
+                                newData.push(...methodData.data);
+                                allMappingValues.current.push(...methodData.data);
+                                totalsDiff += methodData.data.length;
+                            } else if (methodData.method === 'update') {
+                                // Update existing data
+                                for (const datum of methodData.data) {
+                                    const i = newData.findIndex(obj => obj.value.id === datum.value.id);
+                                    if (i !== -1) {
+                                        newData[i] = datum;
+                                    } else {
+                                        // Add data that has been selected but already saved to values not yet loaded
+                                        newData.push(datum);
+                                    }
+                                    // Update data in all mapping values
+                                    const j = allMappingValues.current.findIndex(obj => obj.value.id === datum.value.id);
+                                    if (j !== -1) {
+                                        allMappingValues.current[j] = datum;
+                                    }
+                                }
+                            }
+                        }
+                        // Remove deleted items
+                        if (mappingValuesToDelete.length) {
+                            for (const datum of mappingValuesToDelete) {
+                                const i = newData.findIndex(obj => obj.value.id === datum.id);
+                                if (i !== -1) {
+                                    newData.splice(i, 1);
+                                    totalsDiff--;
+                                }
+                                // Delete data from the all mapping values
+                                const j = allMappingValues.current.findIndex(obj => obj.value.id === datum.id);
+                                if (j !== -1) {
+                                    allMappingValues.current.splice(j, 1);
+                                }
+                            }
+                        }
+                        // Update already saved data state
+                        setMappingValues(newData);
+                        setTotalValues(totalValues + totalsDiff);
+                        // Reset new values state
+                        newMappingValues.current = [];
+                        // Reset
+                        changed.current.mappingValues = false;
+                        return {
+                            type: 'success',
+                            message: __("Item saved successfully!", 'domain-mapping-system'),
+                        }
+                    }).catch(e => {
+                        debug && console.error(e);
+                        return {
                             type: 'error',
                             message: __("Failed to update mapping values.", 'domain-mapping-system'),
                             info: `${host}${path ? '/' + path : ''}`,
-                        });
-                    });
-                }
-                // Get values that should be deleted
-                const mappingValuesToDelete = [];
-                for (const object of mappingValues) {
-                    // If saved object (just for sure)
-                    if (object.value.id) {
-                        // If it doesn't exist in the new list then should be deleted
-                        if (newMappingValues.current.findIndex(newValue => newValue.value === dataValue(object.value)) === -1) {
-                            mappingValuesToDelete.push({id: object.value.id});
-                        }
-                    }
-                }
-                // Check values to not duplicate data
-                newMappingValues.current = newMappingValues.current.map(obj => {
-                    if (obj.id) {
-                        return obj;
-                    }
-                    // Check existence in all values
-                    const ov = optionValue(obj);
-                    const i = allMappingValues.current.findIndex(mv => ov === dataValue(mv.value));
-                    if (i !== -1) {
-                        return {
-                            ...dataValueToSelectValue(allMappingValues.current[i]),
-                            ...obj,
                         };
-                    }
-                    return obj;
-                });
-                return updateMappingValues(restUrl, restNonce, data.mapping.id, newMappingValues.current, mappingValuesToDelete).then(res2 => {
-                    const newData = JSON.parse(JSON.stringify(mappingValues));
-                    let totalsDiff = 0;
-                    for (const methodData of res2) {
-                        if (!methodData.data?.length) {
-                            continue;
-                        }
-                        if (methodData.method === 'create') {
-                            // Add new data
-                            newData.push(...methodData.data);
-                            allMappingValues.current.push(...methodData.data);
-                            totalsDiff += methodData.data.length;
-                        } else if (methodData.method === 'update') {
-                            // Update existing data
-                            for (const datum of methodData.data) {
-                                const i = newData.findIndex(obj => obj.value.id === datum.value.id);
-                                if (i !== -1) {
-                                    newData[i] = datum;
-                                } else {
-                                    // Add data that has been selected but already saved to values not yet loaded
-                                    newData.push(datum);
-                                }
-                                // Update data in all mapping values
-                                const j = allMappingValues.current.findIndex(obj => obj.value.id === datum.value.id);
-                                if (j !== -1) {
-                                    allMappingValues.current[j] = datum;
-                                }
-                            }
-                        }
-                    }
-                    // Remove deleted items
-                    if (mappingValuesToDelete.length) {
-                        for (const datum of mappingValuesToDelete) {
-                            const i = newData.findIndex(obj => obj.value.id === datum.id);
-                            if (i !== -1) {
-                                newData.splice(i, 1);
-                                totalsDiff--;
-                            }
-                            // Delete data from the all mapping values
-                            const j = allMappingValues.current.findIndex(obj => obj.value.id === datum.id);
-                            if (j !== -1) {
-                                allMappingValues.current.splice(j, 1);
-                            }
-                        }
-                    }
-                    // Update already saved data state
-                    setMappingValues(newData);
-                    setTotalValues(totalValues + totalsDiff);
-                    // Reset new values state
-                    newMappingValues.current = [];
-                    // Reset
-                    changed.current.mappingValues = false;
+                    });
+                } else {
                     return {
                         type: 'success',
                         message: __("Item saved successfully!", 'domain-mapping-system'),
                     }
-                }).catch(e => {
-                    debug && console.error(e);
-                    return {
-                        type: 'error',
-                        message: __("Failed to update mapping values.", 'domain-mapping-system'),
-                        info: `${host}${path ? '/' + path : ''}`,
-                    };
-                });
-            } else {
-                return {
-                    type: 'success',
-                    message: __("Item saved successfully!", 'domain-mapping-system'),
                 }
-            }
+            });
         }).catch(e => {
             debug && console.error(e);
             return {
@@ -416,11 +510,20 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
         changed.current.favicon = true;
     }
 
+    /**
+     * On locale change
+     *
+     * @param newLocale
+     */
+    const localeChanged = (newLocale) => {
+        changed.current.locale = true; // Mark locale as changed
+        setSelectedLocale(newLocale); // Update selectedLocale state
+    };
     return (
         <>
             <div className="dms-n-config-table dms-n-config-table-new">
                 <button className={"dms-n-config-table-dropdown" + (open ? ' opened' : '')}
-                   onClick={() => setOpen(!open)}>
+                        onClick={() => setOpen(!open)}>
                     <i></i>
                 </button>
                 <div className="dms-n-config-table-in">
@@ -505,6 +608,21 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                                                changed={faviconChanged}/>
                             </div>
                         </div>
+                        {isMultilingual ?
+                            (<div className="dms-n-config-table-column favicon">
+                                <div className="dms-n-config-table-header">
+                                    <p>
+                                        <span>{__("Language per Domain", 'domain-mapping-system')}</span>
+                                        {!isPremium && <a href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')}
+                                            <span>&#8594;</span></a>}
+                                    </p>
+                                </div>
+                                <div className="dms-n-config-table-body">
+                                    <LanguageDropdown isPremium={isPremium} selectedLocale={selectedLocale}
+                                                      languages={languages} changed={localeChanged}/>
+                                </div>
+                            </div>) : ''
+                        }
                     </div>
                 </div>
                 {deleteRow && <button className="dms-n-config-table-delete" onClick={() => deleteEntry(data.uniqueKey)}>

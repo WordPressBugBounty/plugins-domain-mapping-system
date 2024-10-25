@@ -1,3 +1,6 @@
+= 2.1.1 =
+* Mapping dropdown fixes. 
+
 = 2.1.0 =
 * Added Subdomain Authentication.
 * Fix for Selective Global mapping mechanism. 

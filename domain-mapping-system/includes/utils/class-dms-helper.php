@@ -3,6 +3,7 @@
 namespace DMS\Includes\Utils;
 
 use DMS\Includes\Data_Objects\Mapping;
+use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Exceptions\DMS_Exception;
 use DMS\Includes\Freemius;
@@ -226,6 +227,28 @@ class Helper {
 	public static function get_shop_page_association(): ?int {
 		return function_exists( 'wc_get_page_id' ) ? wc_get_page_id( 'shop' ) : null;
 	}
+
+	/**
+	 * Checks is the mapping value object is wc account page
+	 *
+	 * @param Mapping_Value $mapping_value
+	 *
+	 * @return bool
+	 */
+	public static function is_account_page( Mapping_Value $mapping_value ): bool {
+		if ( ! function_exists( 'wc_get_page_id' ) ) {
+			return false;
+		}
+		if ( $mapping_value->get_object_type() !== Mapping_Value::OBJECT_TYPE_POST ) {
+			return false;
+		}
+		if ( empty( $mapping_value->get_object_id() ) ) {
+			return false;
+		}
+
+		return wc_get_page_id( 'myaccount' ) == $mapping_value->get_object_id();
+	}
+
 
 
 	/**
@@ -496,5 +519,98 @@ class Helper {
 	 */
 	public static function get_home_host(){
 		return wp_parse_url( get_home_url(), PHP_URL_HOST );
+	}
+
+	/**
+	 * Get matching mapping with given host and path
+	 * @param $host
+	 * @param $path
+	 *
+	 * @return Mapping|null
+	 */
+	public static function matching_mapping_from_db( $host, $path ): ?Mapping {
+		try {
+			$all_mappings = Mapping::where( [ 'host' => $host ], null, null, 'path', 'ASC' );
+			if ( empty( $all_mappings ) ) {
+				return null;
+			}
+			if ( ! empty( $path ) ) {
+				// Check maybe there is mapping with the requested url path
+				$mappings = array_values( array_filter( $all_mappings, function ( $item ) use ( $path ) {
+					return strtolower( $path ) === strtolower( $item->path ) && ! empty( $item->path );
+				} ) );
+				// Check the mapping the path of which is contained in the requested url path
+				if ( empty( $mappings ) ) {
+					$mappings = array_values( array_filter( $all_mappings, function ( $item ) use ( $path ) {
+						return Helper::path_starts_with( strtolower( $path ), strtolower( $item->path ) );
+					} ) );
+				}
+				// Empty path in mapping
+				if ( empty( $mappings ) ) {
+					$mappings = array_values( array_filter( $all_mappings, function ( $item ) {
+						return empty( $item->path );
+					} ) );
+				}
+			} else {
+				$mappings = array_values( array_filter( $all_mappings, function ( $item ) {
+					return empty( $item->path );
+				} ) );
+			}
+			if ( empty( $mappings ) ) {
+				return null;
+			}
+
+			return $mappings[0];
+		} catch ( Exception $exception ) {
+			Helper::log( $exception, __METHOD__ );
+
+			return null;
+		}
+	}
+
+	/**
+	 * Checks whether frontend was visited
+	 *
+	 * @param $path
+	 *
+	 * @return bool
+	 */
+	public static function is_frontend( $path ): bool {
+		return ( ! is_admin()
+		  && empty( $_GET['elementor-preview'] )
+		  && empty( $_GET['preview_id'] )
+		  && ( empty( $_GET['action'] ) || ( $_GET['action'] !== 'elementor' ) )
+		  && ! str_contains( $path, 'cornerstone' )
+		  && ! str_contains( $path, 'themeco' )
+		  && ! str_contains( $path, 'wp-json' )
+		  && ! str_contains( $path, 'wp-login' )
+		  && ! str_contains( $path, 'store-manager' )
+		);
+	}
+
+	/**
+	 * Checks whether admin was visited
+	 *
+	 * @param $path
+	 *
+	 * @return bool
+	 */
+	public static function is_admin( $path ): bool {
+		return (
+			! str_contains( $path, 'admin-ajax.php' )
+			&& ! str_contains( $path, 'admin-post.php' )
+			&& ( is_admin() || is_login() )
+		);
+	}
+
+	/**
+	 * Get lowercases from string (e.g., 'en_US' -> 'en')
+	 *
+	 * @param $string
+	 *
+	 * @return string
+	 */
+	public static function get_lowercases_from_string($string): string{
+		return preg_replace('/[^a-z]/', '', $string);
 	}
 }

@@ -172,13 +172,15 @@ abstract class Data_Object implements JsonSerializable {
 	 * Deletes data object
 	 *
 	 * @param null|int $id
+	 * @param array $where
 	 *
 	 * @return true
 	 * @throws DMS_Exception
 	 */
-	public static function wpdb_delete( ?int $id ): bool {
+	public static function wpdb_delete( ?int $id, array $where = [] ): bool {
 		global $wpdb;
-		$result = $wpdb->delete( $wpdb->prefix . static::TABLE, [ 'id' => $id ] );
+		$where  = ! empty( $where ) ? $where : [ 'id' => $id ];
+		$result = $wpdb->delete( $wpdb->prefix . static::TABLE, $where );
 		if ( $result === false ) {
 			throw new DMS_Exception( 'not_found', __( 'Object not found', 'domain-mapping-system' ) );
 		}
@@ -191,12 +193,13 @@ abstract class Data_Object implements JsonSerializable {
 	 *
 	 * @param $id
 	 * @param $data
+	 * @param array $where
 	 *
 	 * @return object
 	 */
-	public static function wpdb_update( $id, $data ): object {
+	public static function wpdb_update( $id, $data, array $where = [] ): object {
 		global $wpdb;
-		$where = [ 'id' => (int) $id ];
+		$where = ! empty( $where ) ? $where : [ 'id' => (int) $id ];
 		$wpdb->update( $wpdb->prefix . static::TABLE, $data, $where );
 
 		$data = array_merge( $where, $data );

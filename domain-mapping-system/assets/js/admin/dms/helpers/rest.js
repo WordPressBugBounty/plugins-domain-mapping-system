@@ -8,8 +8,8 @@
  * @param {boolean} includeMappings Include mappings
  * @return {Promise<any>}
  */
-export const getMappings = (restUrl, restNonce, paged = 1, perPage= 20, includeMappings = true) => {
-    return fetch(`${restUrl}mappings?${includeMappings ? 'include=mapping_values&' : ''}paged=${paged}&limit=${perPage}`, {
+export const getMappings = (restUrl, restNonce, paged = 1, perPage = 20, includeMappings = true) => {
+    return fetch(`${restUrl}mappings?${includeMappings ? 'include[]=mapping_values&include[]=mapping_metas&meta_keys[]=locale&' : ''}paged=${paged}&limit=${perPage}`, {
         headers: {
             'X-WP-Nonce': restNonce
         }
@@ -34,6 +34,25 @@ export const getMappings = (restUrl, restNonce, paged = 1, perPage= 20, includeM
  */
 export const getMappingValues = (restUrl, restNonce, id, paged = 1, perPage = 20) => {
     return fetch(`${restUrl}mappings/${id}/values?include[]=mapped_link&include[]=object&paged=${paged}&per_page=${perPage}`, {
+        headers: {
+            'X-WP-Nonce': restNonce
+        }
+    }).then(res => {
+        const data = res.json();
+        if (!res.ok) {
+            throw new Error(data.message ? data.message : "Something went wrong");
+        }
+        return data;
+    });
+}
+
+/**
+ * Get languages
+ *
+ * @returns {Promise<any>}
+ */
+export const fetchLanguages = (restUrl, restNonce) => {
+    return fetch(`${restUrl}languages`, {
         headers: {
             'X-WP-Nonce': restNonce
         }
@@ -167,6 +186,53 @@ export const updateMapping = (restUrl, restNonce, id, data) => {
         }
         return data;
     });
+}
+
+/**
+ * Update mapping metadata
+ *
+ * @param restUrl
+ * @param restNonce
+ * @param mappingId
+ * @param createData
+ * @param updateData
+ * @param deleteData
+ * @returns {Promise<any>}
+ */
+export const mappingMetaBatch = (restUrl, restNonce, mappingId, createData, updateData, deleteData) => {
+    const body = [];
+    if (createData){
+        body.push({
+            method: 'create',
+            data: createData
+        })
+    }
+    if (updateData) {
+        body.push({
+            method: 'update',
+            data: updateData
+        })
+    }
+    if (deleteData){
+        body.push({
+            method: 'delete',
+            data: deleteData
+        })
+    }
+    return fetch(`${restUrl}mappings/${mappingId}/mapping_metas/batch`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': restNonce
+        },
+        body: JSON.stringify(body)
+    }).then(res => {
+        const data = res.json();
+        if (!res.ok) {
+            throw new Error(data.message ? data.message : "Something went wrong");
+        }
+        return data;
+    })
 }
 
 /**

@@ -2,6 +2,7 @@
 
 namespace DMS\Includes\Repositories;
 
+use DMS\Includes\Data_Objects\Mapping_Meta;
 use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Exceptions\DMS_Exception;
 use DMS\Includes\Utils\Helper;
@@ -119,6 +120,12 @@ class Mapping_Repository {
 		if ( ! empty( $mapping_values ) ) {
 			foreach ( $mapping_values as $mapping_value ) {
 				Mapping_Value::delete( $mapping_value->get_id() );
+			}
+		}
+		$mapping_metas = Mapping_Meta::where( [ 'mapping_id' => $mapping_id ] );
+		if ( ! empty( $mapping_metas ) ) {
+			foreach ( $mapping_metas as $mapping_meta ) {
+				Mapping_Meta::delete( $mapping_meta->get_key(), $mapping_id );
 			}
 		}
 

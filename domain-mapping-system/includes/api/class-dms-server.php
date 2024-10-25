@@ -68,6 +68,8 @@ class Server {
 			'settings'       => 'DMS\\Includes\\Api\\V1\\Controllers\\Settings_Controller',
 			'objects'        => 'DMS\\Includes\\Api\\V1\\Controllers\\WP_Objects_Controller',
 			'object_groups'  => 'DMS\\Includes\\Api\\V1\\Controllers\\Wp_Object_Groups_Controller',
+			'languages'      => 'DMS\\Includes\\Api\\V1\\Controllers\\Languages_Controller',
+			'mapping_metas'  => 'DMS\\Includes\\Api\\V1\\Controllers\\Mapping_Metas_Controller',
 		];
 	}
 }

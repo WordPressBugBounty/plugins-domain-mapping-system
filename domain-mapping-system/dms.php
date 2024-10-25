@@ -4,7 +4,7 @@
  * Plugin Name: Domain Mapping System
  * Plugin URI: https://gauchoplugins.com/
  * Description: Domain Mapping System is the most powerful way to manage alias domains and map them to any published resource - creating Microsites with ease!
- * Version: 2.1.1
+ * Version: 2.1.2
  * Author: Gaucho Plugins
  * Author URI: https://gauchoplugins.com/
  * License: GPL3
@@ -32,7 +32,7 @@ if(! function_exists( 'DMS' )) {
 	 * Plugin version.
 	 * Used SemVer - https://semver.org
 	 */
-	define( 'DMS_VERSION', '2.1.1' );
+	define( 'DMS_VERSION', '2.1.2' );
 
 	/**
 	 * Load activate/Deactivate files

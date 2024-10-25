@@ -3,11 +3,11 @@ import Entry from "./components/Entry";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import {__} from "@wordpress/i18n";
-import {deleteMappings, getMappings, searchObject} from "../helpers/rest";
+import {deleteMappings, fetchLanguages, getMappings, searchObject} from "../helpers/rest";
 import Notice from "../_components/Notice";
 import {makeUniqueKey} from "./helpers/helper";
 
-export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, restNonce, mapsPaged, mapsPerPage, valuesPerPage, debug}) {
+export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, restNonce, mapsPaged, mapsPerPage, valuesPerPage, isMultilingual, debug}) {
     const requirements = useRef(0);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -20,12 +20,34 @@ export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, restNo
     const [notices, setNotices] = useState([]);
     const [entriesToBeDeleted, setEntriesToBeDeleted] = useState([]);
     const entriesRefs = useRef([]);
+    const [languages, setLanguages] = useState([]);
 
     useEffect(() => {
         // Get mappings
         getEntries(paged);
         getSelectDefaultOptions();
+        getLanguages();
     }, []);
+
+    /**
+     * Get the languages
+     */
+    const getLanguages = () => {
+        if (isMultilingual) {
+            fetchLanguages(restUrl, restNonce).then(data => {
+                setLanguages(data);
+            }).catch(e => {
+                debug && console.error(e);
+                // Show error
+                setNotices([...notices, {
+                    type: 'error',
+                    message: e.message,
+                }]);
+                // Hide loading
+                setLoading(false);
+            })
+        }
+    }
 
     /**
      * Get mapping entries
@@ -324,7 +346,7 @@ export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, restNo
                                defaultObjects={selectDefaultOptions} updateEntry={updateEntry} deleteEntry={deleteEntry}
                                rendered={entryRendered} deleteRow={true} openByDefault={isPremium} isPremium={isPremium}
                                upgradeUrl={upgradeUrl} restUrl={restUrl} restNonce={restNonce}
-                               valuesPerPage={valuesPerPage} debug={debug}/>)}
+                               valuesPerPage={valuesPerPage} languages={languages} isMultilingual={isMultilingual} debug={debug}/>)}
                 </div>
             </div>
             <Footer addNewEntry={addNewEntry} paged={paged} itemsCount={itemsCount} totalItems={totalItems}

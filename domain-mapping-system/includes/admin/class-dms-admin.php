@@ -5,7 +5,9 @@ namespace DMS\Includes\Admin;
 use DMS\Includes\Admin\Handlers\Subdomain_Authentication_Handler;
 use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Freemius;
+use DMS\Includes\Integrations\Integrations;
 use DMS\Includes\Services\Request_Params;
+use DMS\Includes\Utils\Helper;
 /**
  * Admin class which organizes all the admin related functionality
  */
@@ -105,7 +107,7 @@ class Admin {
      * @return void
      */
     public function inject_main_dependencies() : void {
-        if ( is_admin() || is_login() ) {
+        if ( Helper::is_admin( $this->request_params->get_path() ) ) {
             $this->define_admin_handlers();
         }
     }
@@ -270,6 +272,7 @@ class Admin {
             'paged'              => ( !empty( $_GET['paged'] ) ? $_GET['paged'] : 1 ),
             'plugin_url'         => $this->plugin_url,
             'available_objects'  => $this->get_content_types(),
+            'is_multilingual'    => Integrations::instance()->translate_press,
         );
         // Dequeue Wc Vendors Pro js file to avoid from conflicts
         wp_dequeue_script( 'wcv-admin-js' );

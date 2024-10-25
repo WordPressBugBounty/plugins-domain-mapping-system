@@ -3,6 +3,7 @@
 namespace DMS\Includes;
 
 use DMS\Includes\Data_Objects\Mapping;
+use DMS\Includes\Data_Objects\Mapping_Meta;
 use DMS\Includes\Data_Objects\Mapping_Value;
 use DMS\Includes\Data_Objects\Setting;
 
@@ -17,12 +18,44 @@ class Activator {
 
 	public function __construct() {
 	}
-	
+
 	public function activate() {
 		$this->activate_deactivate_plan();
 		$this->create_tables();
 		$this->set_config_settings();
 		$this->create_dms_mu_helper();
+	}
+
+	/**
+	 * Deactivate other active dms plugins during activation of this
+	 *
+	 * @return void
+	 */
+	public function activate_deactivate_plan(): void {
+		// Here we need to create unique
+		// Deactivate other active version
+		$plugin_base_name              = DMS::get_instance()->plugin_base_name;
+		$plugin_dir_path               = DMS::get_instance()->plugin_dir_path;
+		$free_plugin_base_name         = strpos( $plugin_base_name,
+			'-pro' ) === false ? $plugin_base_name : str_replace( '-pro', '', $plugin_base_name );
+		$premium_plugin_base_name      = strpos( $plugin_base_name,
+			'-pro' ) !== false ? $plugin_base_name : str_replace( basename( $plugin_dir_path ),
+			basename( $plugin_dir_path ) . '-pro', $plugin_base_name );
+		$is_premium_version_activation = current_filter() !== 'activate_' . $free_plugin_base_name;
+		// This logic is relevant only to plugins since both the free and premium versions of a plugin can be active at the same time.
+		// 1. If running in the activation of the FREE module, get the basename of the PREMIUM.
+		// 2. If running in the activation of the PREMIUM module, get the basename of the FREE.
+		$other_version_basename = ( $is_premium_version_activation ? $free_plugin_base_name : $premium_plugin_base_name );
+		/**
+		 * If the other module version is active, deactivate it.
+		 *
+		 * is_plugin_active() checks if the plugin is active on the site or the network level and
+		 * deactivate_plugins() deactivates the plugin whether it's activated on the site or network level.
+		 *
+		 */
+		if ( is_plugin_active( $other_version_basename ) ) {
+			deactivate_plugins( $other_version_basename );
+		}
 	}
 
 	/**
@@ -35,6 +68,7 @@ class Activator {
 
 		$mappings_name       = $wpdb->prefix . Mapping::TABLE;
 		$mapping_values_name = $wpdb->prefix . Mapping_Value::TABLE;
+		$mapping_meta_name   = $wpdb->prefix . Mapping_Meta::TABLE;
 
 		$charset_collate = $wpdb->get_charset_collate();
 		$dms_mappings    = "CREATE TABLE IF NOT EXISTS $mappings_name (
@@ -45,7 +79,7 @@ class Activator {
         `custom_html` text DEFAULT NULL,
         PRIMARY KEY  (id)
     ) $charset_collate;";
-		// ALTER TABLE `'.$wpdb->prefix.'dms_mapping_values` MODIFY object_type VARCHAR(256) NOT NULL
+
 		$dms_mapping_values = "CREATE TABLE IF NOT EXISTS $mapping_values_name (
         `id` bigint(20) NOT NULL AUTO_INCREMENT,
         `mapping_id` bigint(20) NOT NULL,
@@ -57,10 +91,20 @@ class Activator {
         KEY `object_id` (`object_id`)
     ) $charset_collate;";
 
+		$dms_mapping_metas = "CREATE TABLE IF NOT EXISTS $mapping_meta_name (
+        id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        mapping_id bigint(20) NOT NULL,
+        `key` varchar(255) NOT NULL,
+        `value` text NOT NULL,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+
 		$result1 = $wpdb->query( $dms_mappings );
 		$result2 = $wpdb->query( $dms_mapping_values );
+		$result3 = $wpdb->query( $dms_mapping_metas );
 
-		if ( $result1 === false || $result2 === false ) {
+		if ( $result1 === false || $result2 === false || $result3 === false ) {
 			return false;
 		}
 
@@ -131,38 +175,6 @@ if ( !empty($plugin_file)) {
 	require_once( $plugin_file );
 }' );
 			}
-		}
-	}
-
-	/**
-	 * Deactivate other active dms plugins during activation of this
-	 *
-	 * @return void
-	 */
-	public function activate_deactivate_plan():void {
-		// Here we need to create unique
-		// Deactivate other active version
-		$plugin_base_name              = DMS::get_instance()->plugin_base_name;
-		$plugin_dir_path               = DMS::get_instance()->plugin_dir_path;
-		$free_plugin_base_name         = strpos( $plugin_base_name,
-			'-pro' ) === false ? $plugin_base_name : str_replace( '-pro', '', $plugin_base_name );
-		$premium_plugin_base_name      = strpos( $plugin_base_name,
-			'-pro' ) !== false ? $plugin_base_name : str_replace( basename( $plugin_dir_path ),
-			basename( $plugin_dir_path ) . '-pro', $plugin_base_name );
-		$is_premium_version_activation = current_filter() !== 'activate_' . $free_plugin_base_name;
-		// This logic is relevant only to plugins since both the free and premium versions of a plugin can be active at the same time.
-		// 1. If running in the activation of the FREE module, get the basename of the PREMIUM.
-		// 2. If running in the activation of the PREMIUM module, get the basename of the FREE.
-		$other_version_basename = ( $is_premium_version_activation ? $free_plugin_base_name : $premium_plugin_base_name );
-		/**
-		 * If the other module version is active, deactivate it.
-		 *
-		 * is_plugin_active() checks if the plugin is active on the site or the network level and
-		 * deactivate_plugins() deactivates the plugin whether it's activated on the site or network level.
-		 *
-		 */
-		if ( is_plugin_active( $other_version_basename ) ) {
-			deactivate_plugins( $other_version_basename );
 		}
 	}
 }

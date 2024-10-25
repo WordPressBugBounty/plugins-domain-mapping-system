@@ -8,6 +8,7 @@ import Notice from "../../_components/Notice";
 import {getSettings, updateSetting} from "../../helpers/rest";
 import {settingsData} from "../data/settings";
 import SubdomainAuthenticationRow from "./fields/SubdomainAuthentication";
+import WcSubdomainAuthenticationRow from "./fields/WcSubdomainAuthenticationRow";
 
 export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loading, siteUrl, debug}) {
     const [saving, setSaving] = useState(false);
@@ -21,7 +22,7 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
         // Get settings
         getSettings(restUrl, restNonce, keys).then(res => {
             for (const setting of res) {
-                if (setting.key === 'dms_main_mapping' || setting.key === 'dms_subdomain_authentication_mappings') {
+                if (setting.key === 'dms_main_mapping' || setting.key === 'dms_subdomain_authentication_mappings' || setting.key === 'dms_wc_subdomain_authentication_mappings') {
                     settings[setting.key].value = Array.isArray(setting.value) ? setting.value : [setting.value];
                 } else {
                     settings[setting.key].value = setting.value;
@@ -149,7 +150,13 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
                                         updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
                                         isPremium={isPremium} upgradeUrl={upgradeUrl}
                                         loading={loading} siteUrl={siteUrl} debug={debug}/>
-            <li className="dms-n-setting-title">
+            <WcSubdomainAuthenticationRow slug="dms_wc_subdomain_authentication" slugMaps="dms_wc_subdomain_authentication_mappings"
+                                        value={settings.dms_wc_subdomain_authentication.value}
+                                        selectValue={settings.dms_wc_subdomain_authentication_mappings.value}
+                                        updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
+                                        isPremium={isPremium} upgradeUrl={upgradeUrl}
+                                        loading={loading} siteUrl={siteUrl} debug={debug}/>
+            <li>
                 <div className="dms-n-additional-accordion-li">
                     <strong>{__("Yoast SEO", 'domain-mapping-system')}</strong>
                 </div>

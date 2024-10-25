@@ -22,6 +22,7 @@ class Migration {
 		$this->run_migration_200();
 		$this->run_migration_207();
 		$this->run_migration_209();
+		$this->run_migration_212();
 	}
 
 	public function run_migration_200() {
@@ -167,6 +168,30 @@ class Migration {
 				}
 				Setting::create( [ 'key' => 'dms_migration_209', 'value' => '1' ] );
 			}
+		}
+	}
+
+	public function run_migration_212() {
+		global $wpdb;
+
+		$is_migrated = Setting::find( 'dms_migration_212' )->get_value();
+		if ( empty( $is_migrated ) ) {
+			$table_name      = $wpdb->prefix . 'dms_mapping_metas';  // Add prefix for WordPress table naming convention.
+			$charset_collate = $wpdb->get_charset_collate();
+
+			$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            mapping_id bigint(20) NOT NULL,
+            `key` varchar(255) NOT NULL,
+            `value` text NOT NULL,
+            PRIMARY KEY (id),
+            INDEX (`key`)
+        ) $charset_collate;";
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $sql );
+
+			Setting::create( [ 'key' => 'dms_migration_212', 'value' => '1' ] );
 		}
 	}
 }

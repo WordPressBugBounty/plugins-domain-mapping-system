@@ -137,6 +137,7 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/integrations/class-dms-integrations.php';
         require_once $this->plugin_dir_path . 'includes/integrations/buddyboss/class-dms-buddy-boss-platform.php';
         require_once $this->plugin_dir_path . 'includes/integrations/divi/class-dms-divi.php';
+        require_once $this->plugin_dir_path . 'includes/integrations/woocommerce/class-dms-woocommerce.php';
         /**
          * Utils
          */
@@ -155,6 +156,8 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-settings-controller.php';
         require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-wp-object-groups-controller.php';
         require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-wp-objects-controller.php';
+        require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-languages-controller.php';
+        require_once $this->plugin_dir_path . 'includes/api/v1/controllers/class-dms-mapping-metas-controller.php';
         /**
          * Repositories
          */
@@ -168,6 +171,8 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-homepage-object-repository.php';
         require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-post-object-repository.php';
         require_once $this->plugin_dir_path . 'includes/repositories/class-dms-wp-term-object-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-language-repository.php';
+        require_once $this->plugin_dir_path . 'includes/repositories/class-dms-mapping-meta-repository.php';
         /**
          * Data objects
          */
@@ -181,6 +186,8 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-homepage-post-object-group.php';
         require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-post-object-group.php';
         require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-wp-term-object-group.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-language.php';
+        require_once $this->plugin_dir_path . 'includes/data-objects/class-dms-mapping-meta.php';
         /**
          * Admin Classes
          */

@@ -105,7 +105,8 @@ class Mapping_Handler {
     public function run( $query ) : object {
         try {
             if ( $query->is_main_query() ) {
-                $this->mapping = $this->matching_mapping_from_db();
+                $this->request_params->path = apply_filters( 'dms_request_params_path', $this->request_params->path );
+                $this->mapping = Helper::matching_mapping_from_db( $this->request_params->get_domain(), $this->request_params->get_path() );
                 $this->domain_path_match = $this->is_the_path_correct();
                 if ( $this->domain_path_match ) {
                     $this->mapping_values = ( $this->mapping ? Mapping_Value::where( [
@@ -113,6 +114,8 @@ class Mapping_Handler {
                     ] ) : [] );
                     if ( $this->mapping_values ) {
                         $mapping_value = $this->frontend->mapping_scenarios->run_object_mapped_scenario( $this, $this->request_params );
+                        // Filter the mapping value
+                        $mapping_value = apply_filters( 'dms_mapping_value', $mapping_value, $this->mapping );
                         if ( $mapping_value ) {
                             /**
                              * Extra check FS premium related
@@ -182,57 +185,6 @@ class Mapping_Handler {
     }
 
     /**
-     * Checks matching mapping from db
-     *
-     * @return false|Mapping
-     */
-    public function matching_mapping_from_db() : ?Mapping {
-        try {
-            $all_mappings = Mapping::where(
-                [
-                    'host' => $this->request_params->get_domain(),
-                ],
-                null,
-                null,
-                'path',
-                'ASC'
-            );
-            if ( !empty( $all_mappings ) ) {
-                if ( !empty( $this->request_params->get_path() ) ) {
-                    // Check maybe there is mapping with the requested url path
-                    $mappings = array_values( array_filter( $all_mappings, function ( $item ) {
-                        return strtolower( $this->request_params->get_path() ) === strtolower( $item->path ) && !empty( $item->path );
-                    } ) );
-                    // Check the mapping the path of which is contained in the requested url path
-                    if ( empty( $mappings ) ) {
-                        $mappings = array_values( array_filter( $all_mappings, function ( $item ) {
-                            return Helper::path_starts_with( strtolower( $this->request_params->get_path() ), strtolower( $item->path ) );
-                        } ) );
-                    }
-                    // Empty path in mapping
-                    if ( empty( $mappings ) ) {
-                        $mappings = array_values( array_filter( $all_mappings, function ( $item ) {
-                            return empty( $item->path );
-                        } ) );
-                    }
-                } else {
-                    $mappings = array_values( array_filter( $all_mappings, function ( $item ) {
-                        return empty( $item->path );
-                    } ) );
-                }
-                if ( empty( $mappings ) ) {
-                    return null;
-                }
-                return $mappings[0];
-            }
-            return null;
-        } catch ( Exception $e ) {
-            Helper::log( $e, __METHOD__ );
-            return null;
-        }
-    }
-
-    /**
      * Prepares value instance
      *
      * @param $id
@@ -272,7 +224,10 @@ class Mapping_Handler {
      */
     public function prevent_redirection( $location, $status ) {
         if ( $this->mapped ) {
-            return false;
+            $should_redirect = apply_filters( 'dms_enable_redirect_for_mapped_pages', false, $location );
+            if ( !$should_redirect ) {
+                return false;
+            }
         }
         return $location;
     }

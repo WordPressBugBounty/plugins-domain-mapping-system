@@ -192,7 +192,7 @@ class Frontend {
      * @return void
      */
     public function inject_main_dependencies() {
-        if ( $this->need_handlers_and_mapping_scenarios() ) {
+        if ( Helper::is_frontend( $this->request_params->path ) ) {
             if ( $this->is_dms_hosted() ) {
                 if ( method_exists( $this, 'handlers_init__premium_only' ) ) {
                     $this->handlers_init__premium_only();
@@ -341,15 +341,6 @@ class Frontend {
             );
         }
         return self::$_instance;
-    }
-
-    /**
-     * Check should we define handlers and mapping scenarios or not
-     *
-     * @return bool
-     */
-    public function need_handlers_and_mapping_scenarios() {
-        return !is_admin() && empty( $_GET['elementor-preview'] ) && empty( $_GET['preview_id'] ) && (empty( $_GET['action'] ) || $_GET['action'] !== 'elementor') && !str_contains( $this->request_params->path, 'cornerstone' ) && !str_contains( $this->request_params->path, 'themeco' ) && !str_contains( $this->request_params->path, 'wp-json' ) && !str_contains( $this->request_params->path, 'wp-login' ) && !str_contains( $this->request_params->path, 'store-manager' );
     }
 
     /**

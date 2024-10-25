@@ -6,7 +6,7 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.7
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -51,6 +51,9 @@ Whether you’re just looking for the simplicity of multiple domain mapping in a
 ## 🌐 MULTISITE SUPPORTED
 > Activate Domain Mapping System on your WordPress MU multisite network for each of your network sites. Now, multisite is even more powerful with multiple domain management for every site on your network, so you can enable BYOD (Bring Your Own Domain) for your users. 
 
+## 🇺🇳 LANGUAGE PER DOMAIN 
+> Activate the TranslatePress multilingual plugin and attach each language to a specific domain. Even the language switchers work perfectly out of the box. [PRO]
+
 ## 🧩 CREATE “MICROSITES” - GROUP CONTENT BY DOMAIN
 > Create microsites by grouping your published resources (pages, posts, products, custom post types) around a specific domain - a much less complex multisite alternative. [PRO]
 
@@ -72,7 +75,7 @@ Whether you’re just looking for the simplicity of multiple domain mapping in a
 > Map your Shop page and all Products. You can also map a specific product Category and all the products in the category automatically. [PRO]
 
 ## 🛒 SUBDOMAIN AUTHENTICATION
-> Allow users to login to subdomains of your site, effectively acting as a standalone site for your Account area or any other protected login pages you want to provide. [PRO]
+> Allow users to login to subdomains of your site, effectively acting as a standalone site for your Account area (such as WooCommerce) or any other protected login pages you want to provide. [PRO]
 
 ## ⏩ WELL-DOCUMENTED SETUP PROCESS
 > Domain Mapping System requires a bit of knowledge about DNS and server side configuration, so we've helped out by [documenting the simple steps](https://docs.domainmappingsystem.com/requirements/server-configuration) you'll need to take. Contact support with any questions.
@@ -400,7 +403,9 @@ We really appreciate your input! We currently don't have a public repo, but you 
 
 == Changelog ==
 
-= 2.1.1 =
-* Mapping dropdown fixes. 
+= 2.1.2 =
+* TranslatePress integration added. 
+* WooCommerce Subdomain Authentication added.
+* Update Freemius SDK.
 
 See the full changelog in our [documentation](https://docs.domainmappingsystem.com/changelog/changelog). 

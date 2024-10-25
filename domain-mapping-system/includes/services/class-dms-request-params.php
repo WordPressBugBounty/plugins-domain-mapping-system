@@ -57,8 +57,8 @@ class Request_Params {
 
 	/**
 	 * Scheme of the requested uri
-	 * 
-	 * @var string|null 
+	 *
+	 * @var string|null
 	 */
 	public string $base_scheme = '';
 

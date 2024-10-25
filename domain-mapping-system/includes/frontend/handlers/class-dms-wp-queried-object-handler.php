@@ -86,13 +86,27 @@ class WP_Queried_Object_Handler {
 	public function catch_queried_object(): void {
 		try {
 			global $wp_query;
-			$this->wp_query = $wp_query;
-			if ( $this->frontend->is_dms_hosted() && ! $this->mapping_handler->mapped && ( ! is_null( $this->global_mapping_handler ) && ! $this->global_mapping_handler->mapped ) ) {
-				Unmapped_Scenario_Service::get_instance()->process( $wp_query );
-			} elseif ( $this->frontend->is_dms_hosted() && ! $this->mapping_handler->mapped && ( ! is_null( $this->global_mapping_handler ) && $this->global_mapping_handler->mapped ) ) {
-				if ( $wp_query->is_404() ) {
-					Unmapped_Scenario_Service::get_instance()->process( $wp_query );
+			$this->wp_query    = $wp_query;
+			$unmapped_scenario = false;
+
+			// Checks if dms hosted and the mapping handler didn't handle any mapping
+			if ( $this->frontend->is_dms_hosted() && ! $this->mapping_handler->mapped ) {
+				// Check global domain mapping emptiness
+				if ( ! is_null( $this->global_mapping_handler ) ) {
+					// Global mapping is incomplete
+					if ( ! $this->global_mapping_handler->mapped ) {
+						$unmapped_scenario = true;
+					} //Global mapping is complete, check if 404 page
+					elseif ( $wp_query->is_404() ) {
+						$unmapped_scenario = true;
+					}
 				}
+			}
+
+			$unmapped_scenario = apply_filters( 'dms_unmapped_scenario', $unmapped_scenario, $wp_query );
+
+			if ( $unmapped_scenario ) {
+				Unmapped_Scenario_Service::get_instance()->process( $wp_query );
 			}
 		} catch ( Exception $exception ) {
 			// If error was thrown show 404 not found

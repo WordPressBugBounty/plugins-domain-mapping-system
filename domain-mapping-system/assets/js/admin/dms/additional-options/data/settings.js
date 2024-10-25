@@ -80,6 +80,16 @@ export const settingsData = {
         title: __("Selected domains", 'domain-mapping-system'),
         value: [],
         changed: false,
+    },
+    dms_wc_subdomain_authentication: {
+        title: __('WooCommerce subdomain authentication', 'domain-mapping-system'),
+        value: false,
+        changed: false
+    },
+    dms_wc_subdomain_authentication_mappings: {
+        title: __('Selected domains', 'domain-mapping-system'),
+        value: [],
+        changed: false
     }
 
 }
