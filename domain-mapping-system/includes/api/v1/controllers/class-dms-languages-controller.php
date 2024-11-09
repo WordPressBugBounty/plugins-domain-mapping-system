@@ -29,7 +29,7 @@ class Languages_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 		) );
 	}

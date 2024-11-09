@@ -79,11 +79,13 @@ class Mapping_Meta extends Data_Object {
 	 * Mapping meta where
 	 *
 	 * @param $data
+	 * @param int|null $paged
+	 * @param int|null $limit
 	 *
 	 * @return array
 	 */
-	public static function where( $data ) {
-		return parent::wpdb_where( $data );
+	public static function where( $data, ?int $paged = null, ?int $limit = null ) {
+		return parent::wpdb_where( $data, $paged, $limit, 'key' );
 	}
 
 	/**

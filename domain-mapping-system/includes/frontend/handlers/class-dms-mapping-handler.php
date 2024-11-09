@@ -113,7 +113,8 @@ class Mapping_Handler {
                         'mapping_id' => $this->mapping->id,
                     ] ) : [] );
                     if ( $this->mapping_values ) {
-                        $mapping_value = $this->frontend->mapping_scenarios->run_object_mapped_scenario( $this, $this->request_params );
+                        $request_params = apply_filters( 'dms_mapping_value_request_params', $this->request_params );
+                        $mapping_value = $this->frontend->mapping_scenarios->run_object_mapped_scenario( $this, $request_params );
                         // Filter the mapping value
                         $mapping_value = apply_filters( 'dms_mapping_value', $mapping_value, $this->mapping );
                         if ( $mapping_value ) {
@@ -130,8 +131,8 @@ class Mapping_Handler {
                             $mapper = ( new Mapper_Factory() )->make( $this->matching_mapping_value, $query );
                             $query = $mapper->get_query();
                             $this->mapped = true;
-                            if ( method_exists( $this, 'add_favicon_and_custom_html__premium_only' ) ) {
-                                $this->add_favicon_and_custom_html__premium_only();
+                            if ( method_exists( $this, 'add_customizations__premium_only' ) ) {
+                                $this->add_customizations__premium_only();
                             }
                         }
                     }

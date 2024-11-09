@@ -23,6 +23,13 @@ class Language extends Data_Object {
 	public ?string $flag_url;
 
 	/**
+	 * The language slug
+	 *
+	 * @var string|null
+	 */
+	public ?string $lang_slug;
+
+	/**
 	 * Create new language
 	 *
 	 * @param array $data
@@ -100,5 +107,23 @@ class Language extends Data_Object {
 	 */
 	public function set_flag_url( ?string $flag_url ): void {
 		$this->flag_url = $flag_url;
+	}
+
+	/**
+	 * Get the lang slug
+	 *
+	 * @return  null|string
+	 */
+	public function get_lang_slug(): ?string {
+		return $this->flag_url;
+	}
+
+	/**
+	 * Set the lang slug
+	 *
+	 * @param null|string $flag_url
+	 */
+	public function set_lang_slug( ?string $lang_slug ): void {
+		$this->lang_slug = $lang_slug;
 	}
 }

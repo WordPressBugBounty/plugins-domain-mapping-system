@@ -45,7 +45,7 @@ class Mapping_Values_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'batch' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 		) );
 
@@ -53,18 +53,18 @@ class Mapping_Values_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_items' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'create_item' ),
 				'args'                => $this->get_collection_params(),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 		) );
 
@@ -72,18 +72,18 @@ class Mapping_Values_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_item' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_item' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_item' ),
 				'args'                => $this->get_collection_params(),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 		) );
 	}

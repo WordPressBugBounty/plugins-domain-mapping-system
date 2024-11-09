@@ -2,10 +2,12 @@
 
 namespace DMS\Includes\Integrations;
 
+use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Integrations\BuddyBoss\BuddyBoss_Platform;
 use DMS\Includes\Integrations\Divi\Divi;
 use DMS\Includes\Integrations\SEO\Yoast\Seo_Yoast;
 use DMS\Includes\Integrations\Translate_Press\Translate_Press;
+use DMS\Includes\Integrations\Translate_Press\Translate_Press_Seo_Pack;
 use DMS\Includes\Integrations\WCFM\WCFM;
 use DMS\Includes\Integrations\WooCommerce\Woocommerce;
 use DMS\Includes\Utils\Helper;
@@ -53,11 +55,18 @@ class Integrations {
     public bool $translate_press = false;
 
     /**
+     * Indicates whether Translate press seo pack active
+     *
+     * @var false|mixed
+     */
+    public $trp_seo_pack;
+
+    /**
      * Indicates whether woocommerce integration active
      *
      * @var bool
      */
-    private bool $woocommerce;
+    public bool $woocommerce;
 
     /**
      * Singleton pattern
@@ -89,6 +98,7 @@ class Integrations {
             $this->yoast_seo = $this->initialize_seo_yoast__premium_only();
             $this->wcfm = $this->initialize_wcfm__premium_only();
             $this->translate_press = $this->initialize_translate_press_integration__premium_only();
+            $this->trp_seo_pack = $this->initialize_translate_press_seo_pack__premium_only();
         }
     }
 

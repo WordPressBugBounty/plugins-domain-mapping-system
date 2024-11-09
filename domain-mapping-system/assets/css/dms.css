@@ -432,6 +432,11 @@
   margin-bottom: 20px;
   border: 1px solid #eaeaea;
 }
+.dms-n .dms-n-config-table-code-column {
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+}
 .dms-n .dms-n-config-table-load-more {
   cursor: pointer;
   width: 100px;

@@ -45,7 +45,7 @@ class Mappings_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'batch' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 		) );
 
@@ -53,13 +53,13 @@ class Mappings_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_items' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'create_item' ),
 				'args'                => $this->get_collection_params(),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 		) );
 
@@ -67,18 +67,18 @@ class Mappings_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_item' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( $this, 'authorize_request' ),
 			),
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_item' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 
 			),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_item' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 				'args'                => $this->get_collection_params(),
 			),
 		) );
@@ -130,15 +130,7 @@ class Mappings_Controller extends Rest_Controller {
 		if ( empty( $value ) ) {
 			return true;
 		}
-		$allowed_tags = array(
-			'title',
-			'base',
-			'link',
-			'meta',
-			'style',
-			'script',
-			'noscript'
-		);
+		$allowed_tags = Helper::get_allowed_tags();
 
 		preg_match_all( '/<([a-zA-Z0-9]+)[^>]*>/', $value, $matches );
 		$tags = array_unique( $matches[1] );
@@ -190,12 +182,12 @@ class Mappings_Controller extends Rest_Controller {
 			$limit    = (int) $request->get_param( 'limit' );
 			$include = $request->get_param('include');
 			$mappings = Mapping::where( [], $paged, $limit );
-			if ( in_array( 'mapping_values', $include ) ) {
+			if ( ! empty( $include ) && in_array( 'mapping_values', $include ) ) {
 				$mappings = $this->prepare_values( $mappings );
 			} else {
 				$mappings = $this->prepare_values_links( $mappings );
 			}
-			if ( in_array( 'mapping_metas', $include ) ) {
+			if ( ! empty( $include ) && in_array( 'mapping_metas', $include ) ) {
 				$mappings = $this->prepare_metas( $mappings, $request->get_param( 'meta_keys' ) );
 			}
 			$mappings = $this->prepare_total_count( $mappings );

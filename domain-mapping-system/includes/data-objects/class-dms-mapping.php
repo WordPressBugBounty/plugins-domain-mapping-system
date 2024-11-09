@@ -299,6 +299,15 @@ class Mapping extends Data_Object {
 	}
 
 	/**
+	 * Get mapping metas
+	 *
+	 * @return null|array
+	 */
+	public function get_metas(): ?array {
+		return Mapping_Meta::where( [ 'mapping_id' => $this->get_id() ] );
+	}
+
+	/**
 	 * ID getter
 	 *
 	 * @return int

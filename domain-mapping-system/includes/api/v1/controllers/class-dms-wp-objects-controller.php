@@ -30,7 +30,7 @@ class WP_Objects_Controller extends Rest_Controller {
 		register_rest_route( $this->namespace, '/' . $this->rest_base, array(
 			'callback'            => array( $this, 'get_items' ),
 			'methods'             => WP_REST_Server::READABLE,
-			'permission_callback' => array( $this, 'nonce_is_verified' ),
+			'permission_callback' => array( $this, 'authorize_request' ),
 		) );
 	}
 

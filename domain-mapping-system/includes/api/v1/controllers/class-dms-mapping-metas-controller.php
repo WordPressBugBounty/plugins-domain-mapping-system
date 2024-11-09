@@ -30,7 +30,7 @@ class Mapping_Metas_Controller extends Rest_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'batch' ),
-				'permission_callback' => array( $this, 'nonce_is_verified' ),
+				'permission_callback' => array( $this, 'authorize_request' ),
 				'args'                => $this->get_collection_params()
 			),
 		) );

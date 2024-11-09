@@ -98,7 +98,7 @@ class Admin {
             2
         );
         add_action( 'admin_init', array('DMS\\Includes\\Utils\\Helper', 'sync_fs_license') );
-        $this->fs->add_action( 'after_uninstall', array('\\DMS\\Includes\\Deactivator', 'uninstall') );
+        $this->fs->add_action( 'after_uninstall', array('\\DMS\\Includes\\Uninstaller', 'uninstall') );
     }
 
     /**
@@ -273,6 +273,7 @@ class Admin {
             'plugin_url'         => $this->plugin_url,
             'available_objects'  => $this->get_content_types(),
             'is_multilingual'    => Integrations::instance()->translate_press,
+            'permalink_options'  => admin_url( 'options-permalink.php' ),
         );
         // Dequeue Wc Vendors Pro js file to avoid from conflicts
         wp_dequeue_script( 'wcv-admin-js' );

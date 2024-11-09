@@ -9,7 +9,7 @@
  * @return {Promise<any>}
  */
 export const getMappings = (restUrl, restNonce, paged = 1, perPage = 20, includeMappings = true) => {
-    return fetch(`${restUrl}mappings?${includeMappings ? 'include[]=mapping_values&include[]=mapping_metas&meta_keys[]=locale&' : ''}paged=${paged}&limit=${perPage}`, {
+    return fetch(`${restUrl}mappings?${includeMappings ? 'include[]=mapping_values&include[]=mapping_metas&meta_keys[]=locale&meta_keys[]=custom_body&' : ''}paged=${paged}&limit=${perPage}`, {
         headers: {
             'X-WP-Nonce': restNonce
         }

@@ -202,6 +202,7 @@ final class DMS {
          */
         require_once $this->plugin_dir_path . 'includes/services/class-dms-unmapped-scenario-service.php';
         require_once $this->plugin_dir_path . 'includes/services/class-dms-request-params.php';
+        require_once $this->plugin_dir_path . 'includes/services/class-dms-auth-service.php';
         /**
          * Factories
          */

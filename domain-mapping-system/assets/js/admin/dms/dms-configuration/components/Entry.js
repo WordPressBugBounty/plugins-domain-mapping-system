@@ -27,6 +27,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
     const [favicon, setFavicon] = useState({id: false});
     const allMappingValues = useRef([]);
     const [selectedLocale, setSelectedLocale] = useState('');
+    const [customBody, setCustomBody] = useState('');
     // Handel change of the entry
     const changed = useRef({
         host: false,
@@ -35,6 +36,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
         customHtml: false,
         favicon: false,
         locale: false,
+        customBody: false,
     });
 
     useImperativeHandle(ref, () => ({
@@ -93,6 +95,12 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
             if (locales.length > 0) {
                 const locale = locales[0].value;
                 setSelectedLocale(locale);
+            }
+        }
+        if (data._mapping_meta?.length) {
+            const customBody = data._mapping_meta.filter(meta => meta.key === 'custom_body');
+            if (customBody.length > 0) {
+                setCustomBody(customBody[0].value);
             }
         }
         // Set mapping values
@@ -223,12 +231,25 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
      * @returns {Promise<unknown>|Promise<{type: string, message: string}>}
      */
     const updateMapMeta = () => {
+        let changedItem = false;
+        let updateData = [];
         if (changed.current.locale) {
-            const updateData = [{
+            updateData.push({
                 mapping_id: data.mapping.id,
                 key: 'locale',
                 value: selectedLocale.locale,
-            }];
+            });
+            changedItem = true;
+        }
+        if (changed.current.customBody) {
+            updateData.push({
+                mapping_id: data.mapping.id,
+                key: 'custom_body',
+                value: customBody
+            })
+            changedItem = true;
+        }
+        if (changedItem) {
             return mappingMetaBatch(restUrl, restNonce, data.mapping.id, null, updateData, null).then(res => {
                 changed.current.locale = false;
                 return {
@@ -253,13 +274,26 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
      * @returns {Promise<unknown>|Promise<{type: string, message: string}>}
      */
     const createMapMeta = (mappingId) => {
+        let changedItem = false;
+        let createData = [];
         if (changed.current.locale) {
-            const createData = [{
+            createData.push({
                 mapping_id: mappingId,
                 key: 'locale',
                 value: selectedLocale.locale,
-            }]
-            return mappingMetaBatch(restUrl, restNonce, data.mapping.id, createData, null, null).then(res => {
+            })
+            changedItem = true;
+        }
+        if (changed.current.customBody) {
+            createData.push({
+                mapping_id: mappingId,
+                key: 'custom_body',
+                value: customBody
+            })
+            changedItem = true;
+        }
+        if (changedItem) {
+            return mappingMetaBatch(restUrl, restNonce, mappingId, createData, null, null).then(res => {
                 changed.current.locale = false;
                 return {
                     type: 'success',
@@ -504,6 +538,16 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
     }
 
     /**
+     * On custom body change
+     *
+     * @param e
+     */
+    const customBodyChanged = (e) => {
+        changed.current.customBody = true;
+        setCustomBody(e.target.value);
+    }
+
+    /**
      * On favicon change
      */
     const faviconChanged = () => {
@@ -581,18 +625,34 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                         </div>
                     </div>
                     <div className={'dms-n-config-table-row' + (!open ? ' closed' : '')}>
-                        <div className="dms-n-config-table-column code">
-                            <div className="dms-n-config-table-header">
-                                <p>
-                                    <span>{__("Custom HTML Code", 'domain-mapping-system')}</span>
-                                    {!isPremium && <a href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')}
-                                        <span>&#8594;</span></a>}
-                                </p>
+                        <div className={'dms-n-config-table-code-column'}>
+                            <div className="dms-n-config-table-column code">
+                                <div className="dms-n-config-table-header">
+                                    <p>
+                                        <span>{__("<head> per domain", 'domain-mapping-system')}</span>
+                                        {!isPremium && <a href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')}
+                                            <span>&#8594;</span></a>}
+                                    </p>
+                                </div>
+                                <div className="dms-n-config-table-body">
+                                    <input type="text" className="dms-n-config-table-input-code"
+                                           placeholder={'</' + __("Code here", 'domain-mapping-system') + '>'}
+                                           value={customHtml} onChange={customHtmlChanged} disabled={!isPremium}/>
+                                </div>
                             </div>
-                            <div className="dms-n-config-table-body">
-                                <input type="text" className="dms-n-config-table-input-code"
-                                       placeholder={'</' + __("Code here", 'domain-mapping-system') + '>'}
-                                       value={customHtml} onChange={customHtmlChanged} disabled={!isPremium}/>
+                            <div className="dms-n-config-table-column code">
+                                <div className="dms-n-config-table-header">
+                                    <p>
+                                        <span>{__("<body> per domain", 'domain-mapping-system')}</span>
+                                        {!isPremium && <a href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')}
+                                            <span>&#8594;</span></a>}
+                                    </p>
+                                </div>
+                                <div className="dms-n-config-table-body">
+                                    <input type="text" className="dms-n-config-table-input-code"
+                                           placeholder={'</' + __("Code here", 'domain-mapping-system') + '>'}
+                                           value={customBody} onChange={customBodyChanged} disabled={!isPremium}/>
+                                </div>
                             </div>
                         </div>
                         <div className="dms-n-config-table-column favicon">

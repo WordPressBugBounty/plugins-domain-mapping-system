@@ -272,7 +272,7 @@ class Mapping_Value extends Data_Object {
 	 * 
 	 * @return string
 	 */
-	public function get_mapped_link():string {
+	public function get_mapped_link(): string {
 		$mapping = Mapping::find( $this->mapping_id );
 		$path    = trim( wp_parse_url( $this->get_wp_object()->get_link(), PHP_URL_PATH ), '/' );
 		if ( $this->primary ) {
@@ -282,6 +282,6 @@ class Mapping_Value extends Data_Object {
 			$mapped_url = Helper::generate_url( $mapping->host, $path );
 		}
 
-		return $mapped_url;
+		return apply_filters( 'dms_mapped_link', $mapped_url, $this );
 	}
 }

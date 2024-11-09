@@ -2,12 +2,12 @@ import {useEffect, useRef, useState} from 'react';
 import Entry from "./components/Entry";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import {__} from "@wordpress/i18n";
+import {__, sprintf} from "@wordpress/i18n";
 import {deleteMappings, fetchLanguages, getMappings, searchObject} from "../helpers/rest";
 import Notice from "../_components/Notice";
 import {makeUniqueKey} from "./helpers/helper";
 
-export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, restNonce, mapsPaged, mapsPerPage, valuesPerPage, isMultilingual, debug}) {
+export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, permalinkOptions, restNonce, mapsPaged, mapsPerPage, valuesPerPage, isMultilingual, debug}) {
     const requirements = useRef(0);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -23,10 +23,20 @@ export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, restNo
     const [languages, setLanguages] = useState([]);
 
     useEffect(() => {
-        // Get mappings
-        getEntries(paged);
-        getSelectDefaultOptions();
-        getLanguages();
+        console.log(restUrl);
+        if (restUrl.indexOf('?') !== -1) {
+            setNotices([...notices, {
+                type: 'error',
+                message: sprintf(__("Plain %s permalinks %s are not supported yet.", 'domain-mapping-system'), `<a href="${permalinkOptions}">`, `</a>`),
+            }])
+            setLoading(false);
+        } else {
+            // Get mappings
+            getEntries(paged);
+            getSelectDefaultOptions();
+            getLanguages();
+        }
+
     }, []);
 
     /**

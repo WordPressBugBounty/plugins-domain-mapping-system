@@ -24,6 +24,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const availableObjects = dms_data.available_objects;
     const siteUrl = dms_data.site_url;
     const isMultilingual = dms_data.is_multilingual;
+    const permalinkOptions = dms_data.permalink_options;
     // Remove global variable
     Object.keys(dms_data).forEach(key => delete dms_data[key]);
 
@@ -31,6 +32,7 @@ window.addEventListener('DOMContentLoaded', () => {
         <React.StrictMode>
             <div className="dms-n-row dms-n-config">
                 <DMSConfiguration isPremium={isPremium} upgradeUrl={upgradeUrl} restUrl={restUrl}
+                                  permalinkOptions={permalinkOptions}
                                   restNonce={restNonce} mapsPaged={mapsPaged} mapsPerPage={mapsPerPage}
                                   valuesPerPage={valuesPerMapping} isMultilingual={isMultilingual} debug={debugModeOn}/>
             </div>
