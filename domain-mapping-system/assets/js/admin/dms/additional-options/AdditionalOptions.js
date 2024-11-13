@@ -2,7 +2,7 @@ import {useState} from "react";
 import Settings from "./components/Settings";
 import {__} from "@wordpress/i18n";
 
-export default function AdditionalOptions({isPremium, upgradeUrl, restUrl, restNonce, siteUrl, debug}) {
+export default function AdditionalOptions({isPremium, upgradeUrl, restUrl, restNonce, siteUrl, isMultilingual, debug}) {
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(true);
 
@@ -25,7 +25,7 @@ export default function AdditionalOptions({isPremium, upgradeUrl, restUrl, restN
                 <i></i>
             </div>
             <Settings isPremium={isPremium} upgradeUrl={upgradeUrl} restUrl={restUrl} restNonce={restNonce}
-                      loading={setLoading} siteUrl={siteUrl} debug={debug}/>
+                      loading={setLoading} siteUrl={siteUrl} isMultilingual={isMultilingual} debug={debug}/>
         </div>
     </>
 }

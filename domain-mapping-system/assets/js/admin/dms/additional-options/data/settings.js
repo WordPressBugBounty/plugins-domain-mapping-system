@@ -90,6 +90,11 @@ export const settingsData = {
         title: __('Selected domains', 'domain-mapping-system'),
         value: [],
         changed: false
-    }
+    },
+    dms_translate_press_only_one_language_for_domain: {
+        title: __("One Domain One Language", 'domain-mapping-system'),
+        value: false,
+        changed: false,
+    },
 
 }

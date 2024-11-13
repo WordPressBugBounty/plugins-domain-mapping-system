@@ -2777,6 +2777,7 @@ function AdditionalOptions({
   restUrl,
   restNonce,
   siteUrl,
+  isMultilingual,
   debug
 }) {
   const [loading, setLoading] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true);
@@ -2804,6 +2805,7 @@ function AdditionalOptions({
     restNonce: restNonce,
     loading: setLoading,
     siteUrl: siteUrl,
+    isMultilingual: isMultilingual,
     debug: debug
   })));
 }
@@ -2853,6 +2855,7 @@ function Settings({
   restNonce,
   loading,
   siteUrl,
+  isMultilingual,
   debug
 }) {
   const [saving, setSaving] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
@@ -3074,6 +3077,15 @@ function Settings({
     updateValue: setSettings,
     description: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Delete plugin, data, and settings (full removal) when uninstalling.", 'domain-mapping-system') + ' ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("%sWarning:%s This action is irreversible.", 'domain-mapping-system'), '<strong>', '</strong>'),
     isPremium: true,
+    upgradeUrl: upgradeUrl
+  }), isMultilingual && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_fields_CheckboxRow__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    key: "translate_press_only_one_language_for_domain",
+    slug: "dms_translate_press_only_one_language_for_domain",
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Translate Press: One Domain One Language", 'domain-mapping-system'),
+    value: settings.dms_translate_press_only_one_language_for_domain.value,
+    updateValue: setSettings,
+    description: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Switch language to mapped domains if it exist. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="#">', '</a>'),
+    isPremium: isPremium,
     upgradeUrl: upgradeUrl
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "dms-n-row-submit-wrapper"
@@ -4000,6 +4012,11 @@ const settingsData = {
   dms_wc_subdomain_authentication_mappings: {
     title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Selected domains', 'domain-mapping-system'),
     value: [],
+    changed: false
+  },
+  dms_translate_press_only_one_language_for_domain: {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)("One Domain One Language", 'domain-mapping-system'),
+    value: false,
     changed: false
   }
 };
@@ -18713,6 +18730,7 @@ window.addEventListener('DOMContentLoaded', () => {
     restUrl: restUrl,
     restNonce: restNonce,
     siteUrl: siteUrl,
+    isMultilingual: isMultilingual,
     debug: debugModeOn
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "dms-n-row dms-n-post-types"

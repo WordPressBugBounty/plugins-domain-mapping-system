@@ -38,7 +38,7 @@ window.addEventListener('DOMContentLoaded', () => {
             </div>
             <div className="dms-n-row dms-n-additional">
                 <AdditionalOptions isPremium={isPremium} upgradeUrl={upgradeUrl} restUrl={restUrl}
-                                   restNonce={restNonce} siteUrl={siteUrl} debug={debugModeOn}/>
+                                   restNonce={restNonce} siteUrl={siteUrl} isMultilingual={isMultilingual}  debug={debugModeOn}/>
             </div>
             <div className="dms-n-row dms-n-post-types">
                 <AvailablePostTypes availableObjects={availableObjects} isPremium={isPremium} upgradeUrl={upgradeUrl}

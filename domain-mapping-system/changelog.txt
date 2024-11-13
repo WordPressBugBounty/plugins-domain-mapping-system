@@ -1,3 +1,10 @@
+= 2.1.3 =
+* TranslatePress slug and bug fixes.
+* Permalink detection warning added. 
+* Fix to delete all data on uninstall. 
+* Custom body code per domain added. 
+* REST API updates. 
+
 = 2.1.2 =
 * TranslatePress integration added. 
 * WooCommerce Subdomain Authentication added. 
