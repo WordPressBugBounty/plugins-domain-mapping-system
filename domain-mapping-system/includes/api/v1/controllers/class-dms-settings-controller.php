@@ -157,7 +157,7 @@ class Settings_Controller extends Rest_Controller {
 	 */
 	public function create_item( $request ) {
 		try {
-			$params = $request->get_params();
+			$params = $request->get_json_params();
 
 			return Setting::create( $params );
 		} catch ( \Exception $e ) {
@@ -195,7 +195,7 @@ class Settings_Controller extends Rest_Controller {
 	 */
 	public function batch( $request ) {
 		try {
-			$params = $request->get_params();
+			$params = $request->get_json_params();
 
 			return ( new Setting_Repository )->batch( $params );
 		} catch ( \Exception $e ) {

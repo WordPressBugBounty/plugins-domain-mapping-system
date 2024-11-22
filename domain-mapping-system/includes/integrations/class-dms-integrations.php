@@ -6,6 +6,7 @@ use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Integrations\BuddyBoss\BuddyBoss_Platform;
 use DMS\Includes\Integrations\Divi\Divi;
 use DMS\Includes\Integrations\SEO\Yoast\Seo_Yoast;
+use DMS\Includes\Integrations\Theme_My_Login\Theme_My_Login;
 use DMS\Includes\Integrations\Translate_Press\Translate_Press;
 use DMS\Includes\Integrations\Translate_Press\Translate_Press_Seo_Pack;
 use DMS\Includes\Integrations\WCFM\WCFM;
@@ -69,6 +70,13 @@ class Integrations {
     public bool $woocommerce;
 
     /**
+     * Theme my login
+     *
+     * @var false
+     */
+    public $theme_my_login = false;
+
+    /**
      * Singleton pattern
      *
      * @return Integrations
@@ -99,6 +107,7 @@ class Integrations {
             $this->wcfm = $this->initialize_wcfm__premium_only();
             $this->translate_press = $this->initialize_translate_press_integration__premium_only();
             $this->trp_seo_pack = $this->initialize_translate_press_seo_pack__premium_only();
+            $this->theme_my_login = $this->initialize_theme_my_login__premium_only();
         }
     }
 

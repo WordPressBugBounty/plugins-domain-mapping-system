@@ -2,6 +2,7 @@
 
 namespace DMS\Includes\Admin;
 
+use DMS\Includes\Admin\Handlers\Alias_Domain_Authentication_Handler;
 use DMS\Includes\Admin\Handlers\Subdomain_Authentication_Handler;
 use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Freemius;
@@ -46,6 +47,13 @@ class Admin {
      * @var Subdomain_Authentication_Handler
      */
     public Subdomain_Authentication_Handler $subdomain_authentication_handler;
+
+    /**
+     * Alias domain authentication handler
+     *
+     * @var Alias_domain_Authentication_Handler
+     */
+    public Alias_Domain_Authentication_Handler $alias_domain_authentication_handler;
 
     /**
      * Request params
@@ -118,7 +126,12 @@ class Admin {
      * @return void
      */
     private function define_admin_handlers() {
-        $this->subdomain_authentication_handler = new Subdomain_Authentication_Handler($this->request_params);
+        if ( !empty( Setting::find( 'dms_subdomain_authentication' )->get_value() ) ) {
+            $this->subdomain_authentication_handler = new Subdomain_Authentication_Handler($this->request_params);
+        }
+        if ( !empty( Setting::find( 'dms_alias_domain_authentication' )->get_value() ) ) {
+            $this->alias_domain_authentication_handler = new Alias_Domain_Authentication_Handler($this->request_params);
+        }
     }
 
     /**

@@ -67,18 +67,19 @@ class BuddyBoss_Platform {
 		// Do not modify if there is a logged-in user
 		$user = wp_get_current_user();
 		if ( ! empty( $user ) && ( $user instanceof WP_User ) && $user->exists() ) {
-			return $classes;
+			$option = get_user_meta( $user->ID, 'bb_layout_view', true );
+			$cookie = ! empty( $option ) ? $option : null;
+		}
+		else{
+			$cookie = ! empty( $_COOKIE[ self::COOKIE_NAME ] ) ? $_COOKIE[ self::COOKIE_NAME ] : null;
+			if ( ! empty( $cookie ) ) {
+				$cookie = json_decode( rawurldecode( $cookie ), true );
+			}
 		}
 		
 		// If not array, then do not modify
 		if( ! is_array( $classes ) ) {
 			return $classes;
-		}
-
-		// Retrieve the layout from the cookie
-		$cookie = ! empty( $_COOKIE[ self::COOKIE_NAME ] ) ? $_COOKIE[ self::COOKIE_NAME ] : null;
-		if ( ! empty( $cookie ) ) {
-			$cookie = json_decode( rawurldecode( $cookie ), true );
 		}
 
 		// If component is not set, retrieve it from the POST data

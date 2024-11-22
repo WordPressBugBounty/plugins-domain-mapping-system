@@ -193,6 +193,7 @@ final class DMS {
          */
         require_once $this->plugin_dir_path . 'includes/admin/class-dms-admin.php';
         require_once $this->plugin_dir_path . 'includes/admin/handlers/class-dms-subdomain-authentication-handler.php';
+        require_once $this->plugin_dir_path . 'includes/admin/handlers/class-dms-alias-domain-authentication-handler.php';
         /**
          * Freemius
          */

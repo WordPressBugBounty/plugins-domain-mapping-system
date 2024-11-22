@@ -157,7 +157,7 @@ class Mappings_Controller extends Rest_Controller {
 	 */
 	public function batch( $request ) {
 		try {
-			$params = $request->get_params();
+			$params = $request->get_json_params();
 
 			$mappings = ( new Mapping_Repository() )->batch( $params );
 

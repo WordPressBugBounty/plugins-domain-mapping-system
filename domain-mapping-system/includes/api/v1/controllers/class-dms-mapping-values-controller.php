@@ -136,7 +136,7 @@ class Mapping_Values_Controller extends Rest_Controller {
 	 */
 	public function batch( $request ) {
 		try {
-			$mapping_values = ( new Mapping_Value_Repository() )->batch( $request->get_params() );
+			$mapping_values = ( new Mapping_Value_Repository() )->batch( $request->get_json_params() );
 			$mapping_values = $this->prepare_data( $mapping_values );
 
 			return rest_ensure_response( $mapping_values );

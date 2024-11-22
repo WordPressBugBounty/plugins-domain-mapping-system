@@ -272,10 +272,11 @@ class URI_Handler {
      */
     public function get_rewritten_url( ?Mapping $mapping, ?Mapping_Value $mapping_value, ?string $link ) : ?string {
         if ( $this->rewrite_scenario == self::REWRITING_SELECTIVE ) {
-            return $this->get_selective_rewritten_url( $mapping ?? null, $mapping_value ?? null, $link );
+            $url = $this->get_selective_rewritten_url( $mapping ?? null, $mapping_value ?? null, $link );
         } else {
-            return $this->get_global_rewritten_url( $mapping ?? null, $mapping_value ?? null, $link );
+            $url = $this->get_global_rewritten_url( $mapping ?? null, $mapping_value ?? null, $link );
         }
+        return apply_filters( 'dms_rewritten_url', $url, $this->rewrite_scenario );
     }
 
     /**
