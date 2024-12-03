@@ -5,6 +5,7 @@ namespace DMS\Includes\Integrations;
 use DMS\Includes\Data_Objects\Setting;
 use DMS\Includes\Integrations\BuddyBoss\BuddyBoss_Platform;
 use DMS\Includes\Integrations\Divi\Divi;
+use DMS\Includes\Integrations\Elementor\Elementor;
 use DMS\Includes\Integrations\SEO\Yoast\Seo_Yoast;
 use DMS\Includes\Integrations\Theme_My_Login\Theme_My_Login;
 use DMS\Includes\Integrations\Translate_Press\Translate_Press;
@@ -47,6 +48,13 @@ class Integrations {
      * @var bool
      */
     public bool $divi = false;
+
+    /**
+     * Indicates whether Elementor integration active
+     *
+     * @var bool
+     */
+    public bool $elementor = false;
 
     /**
      * Translate press integration
@@ -97,6 +105,7 @@ class Integrations {
         // Initialize free integrations
         $this->buddy_boss = $this->initialize_buddypboss_integration();
         $this->divi = $this->initialize_divi_integration();
+        $this->elementor = $this->initialize_elementor_integration();
         $this->woocommerce = $this->initialize_woocommerce();
         // Initialize premium integrations
         if ( method_exists( $this, 'initialize_seo_yoast__premium_only' ) ) {
@@ -141,6 +150,19 @@ class Integrations {
     public function initialize_divi_integration() : bool {
         if ( is_plugin_active( 'divi-builder/divi-builder.php' ) || Helper::active_theme_is_divi() ) {
             Divi::run();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Elementor integration
+     *
+     * @return bool
+     */
+    public function initialize_elementor_integration() : bool {
+        if ( is_plugin_active( 'elementor/elementor.php' ) && is_plugin_active( 'elementor-pro/elementor-pro.php' ) ) {
+            Elementor::run();
             return true;
         }
         return false;

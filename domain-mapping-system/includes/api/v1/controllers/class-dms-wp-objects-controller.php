@@ -43,7 +43,7 @@ class WP_Objects_Controller extends Rest_Controller {
 	 */
 	public function get_items( $request ) {
 		try {
-			$params            = $request->get_json_params();
+			$params            = $request->get_params();
 			$group_name        = ! empty( $params['group_name'] ) ? sanitize_text_field( $params['group_name'] ) : '';
 			$search            = ! empty( $params['s'] ) ? sanitize_text_field( $params['s'] ) : '';
 			$per_page          = ! empty( $params['per_page'] ) ? (int) $params['per_page'] : Setting::find( 'dms_values_per_mapping' )->get_value();

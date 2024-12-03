@@ -138,6 +138,7 @@ final class DMS {
         require_once $this->plugin_dir_path . 'includes/integrations/buddyboss/class-dms-buddy-boss-platform.php';
         require_once $this->plugin_dir_path . 'includes/integrations/divi/class-dms-divi.php';
         require_once $this->plugin_dir_path . 'includes/integrations/woocommerce/class-dms-woocommerce.php';
+        require_once $this->plugin_dir_path . 'includes/integrations/elementor/class-dms-elementor.php';
         /**
          * Utils
          */

@@ -1,3 +1,9 @@
+= 2.1.5 =
+* Alias Domain Authentication added! 
+* URL Rewriting applied on authenticated pages. 
+* TranslatePress integration improvements.
+* Bugfix for error on saving. 
+
 = 2.1.4 =
 * TranslatePress switcher fixes.
 * Bug fixes.

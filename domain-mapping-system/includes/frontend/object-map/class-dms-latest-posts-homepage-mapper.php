@@ -25,7 +25,8 @@ class Latest_Posts_Homepage_Mapper extends Mapper implements Mapper_Interface {
 	 * @return void
 	 */
 	public function define_query(): void {
-		$this->query->is_home = true;
-		$this->query->is_404  = false;
+		$this->query->is_home     = true;
+		$this->query->is_singular = false;
+		$this->query->is_404      = false;
 	}
 }

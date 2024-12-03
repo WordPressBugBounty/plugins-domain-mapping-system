@@ -217,7 +217,10 @@ class Mapping_Value extends Data_Object {
 	 * @return int
 	 */
 	public function get_primary(): ?int {
-		return $this->primary;
+		if(!empty($this->primary)) {
+			return $this->primary;
+		}
+		return 0;
 	}
 
 	/**
@@ -274,7 +277,12 @@ class Mapping_Value extends Data_Object {
 	 */
 	public function get_mapped_link(): string {
 		$mapping = Mapping::find( $this->mapping_id );
-		$path    = trim( wp_parse_url( $this->get_wp_object()->get_link(), PHP_URL_PATH ), '/' );
+		$path = wp_parse_url( $this->get_wp_object()->get_link(), PHP_URL_PATH );
+
+		if(!empty($path)){
+			$path = trim($path, '/');
+		}
+
 		if ( $this->primary ) {
 			$mapped_url = Helper::generate_url( $mapping->host, $mapping->path );
 		} else {

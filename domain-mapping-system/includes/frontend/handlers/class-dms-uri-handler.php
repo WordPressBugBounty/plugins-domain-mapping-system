@@ -11,6 +11,7 @@ use DMS\Includes\Frontend\Scenarios\Global_Product_Mapping;
 use DMS\Includes\Services\Request_Params;
 use DMS\Includes\Utils\Helper;
 use Exception;
+use WP_Scripts;
 use WP_Term;
 class URI_Handler {
     /**
@@ -177,12 +178,6 @@ class URI_Handler {
             10,
             3
         );
-        add_filter(
-            'the_content',
-            array($this, 'rewrite_the_content'),
-            10,
-            1
-        );
         // Action for rewriting other urls
         do_action( 'dms_rewrite_uris' );
     }
@@ -229,7 +224,7 @@ class URI_Handler {
             ) ?? $data;
         }
         return preg_replace_callback(
-            '/(https?:\\/\\/)(' . $host . ')((\\/\\w+)*\\/)?([\\w\\-.]+[^#?\\s]+)' . $dot . '(#[\\w\\-]+)?/',
+            '/(https?:\\/\\/)(' . $host . ')(\\/[\\w\\/\\-]*)?([\\w\\-.]+[^#?\\s]+)?' . $dot . '(#[\\w\\-]+)?/',
             array($this, 'actual_host_replace'),
             $data,
             -1
@@ -272,6 +267,7 @@ class URI_Handler {
      */
     public function get_rewritten_url( ?Mapping $mapping, ?Mapping_Value $mapping_value, ?string $link ) : ?string {
         if ( $this->rewrite_scenario == self::REWRITING_SELECTIVE ) {
+            $mapping = Mapping::find( $mapping_value->mapping_id );
             $url = $this->get_selective_rewritten_url( $mapping ?? null, $mapping_value ?? null, $link );
         } else {
             $url = $this->get_global_rewritten_url( $mapping ?? null, $mapping_value ?? null, $link );
@@ -471,6 +467,50 @@ class URI_Handler {
             }
         }
         return $sources;
+    }
+
+    /**
+     * Rewrite All Urls in template redirect hook
+     *
+     */
+    public function rewrite_all_urls() {
+        ob_start( function ( $buffer ) {
+            return self::replace_host_occurrence( $buffer );
+        } );
+    }
+
+    /**
+     * Ensures the buffered content is sent to the browser after modifications.
+     *
+     */
+    public function clean_buffer_and_show() {
+        if ( ob_get_length() ) {
+            ob_end_flush();
+        }
+    }
+
+    /**
+     * Rewrite WordPress generated resource
+     *
+     * @param $hints
+     * @param $rel
+     *
+     * @return mixed
+     */
+    public function rewrite_hints( $hints, $rel ) {
+        $base_domain = $this->request_params->base_host;
+        $mapped_domain = $this->request_params->domain;
+        // Mapped domain
+        // Replace domain in dns-prefetch hints
+        foreach ( $hints as &$hint ) {
+            if ( is_array( $hint ) ) {
+                continue;
+            }
+            if ( strpos( $hint, $base_domain ) !== false ) {
+                $hint = str_replace( $base_domain, $mapped_domain, $hint );
+            }
+        }
+        return $hints;
     }
 
 }
