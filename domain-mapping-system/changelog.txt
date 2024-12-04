@@ -1,3 +1,8 @@
+= 2.1.6 =
+* TranslatePress integration fixes.
+* Fixed some missed URL’s being rewritten in page source.
+* General bugfixes and improvements. 
+
 = 2.1.5 =
 * Alias Domain Authentication added! 
 * URL Rewriting applied on authenticated pages. 
