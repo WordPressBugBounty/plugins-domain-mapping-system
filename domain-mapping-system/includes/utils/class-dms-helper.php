@@ -113,7 +113,8 @@ class Helper {
      * @return string
      */
     public static function get_base_host() : string {
-        return trim( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
+        $site_link = get_option( 'siteurl' );
+        return trim( wp_parse_url( $site_link, PHP_URL_HOST ) );
     }
 
     /**
@@ -122,7 +123,8 @@ class Helper {
      * @return string
      */
     public static function get_base_scheme() : string {
-        return trim( wp_parse_url( get_site_url(), PHP_URL_SCHEME ) );
+        $site_link = get_option( 'siteurl' );
+        return trim( wp_parse_url( $site_link, PHP_URL_SCHEME ) );
     }
 
     /**

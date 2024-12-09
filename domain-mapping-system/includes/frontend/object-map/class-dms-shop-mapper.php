@@ -60,7 +60,14 @@ class Shop_Mapper extends Mapper implements Mapper_Interface {
 		$this->query->set( 'error', '' );
 		$this->query->set( 'paged', $paged );
 
-
+		if($this->mapping_value->primary === 1){
+			$this->query->set( 'attachment', '' );
+			$this->query->set( 'name', '' );
+			$this->query->set( 'page', '' );
+			$this->query->set( 'pagename', '' );
+			$this->query->set( 'category_name', '' );
+			$this->query->query = [];
+		}
 		if ( ! empty( $instance->path ) ) {
 			$this->query->set( 'attachment', '' );
 			$this->query->set( 'name', '' );

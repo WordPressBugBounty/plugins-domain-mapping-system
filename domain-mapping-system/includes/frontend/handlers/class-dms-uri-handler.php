@@ -232,6 +232,56 @@ class URI_Handler {
     }
 
     /**
+     * Replace href occurrence
+     *
+     * @param $data
+     *
+     * @return string
+     */
+    public function replace_href_occurrence( $data ) : string {
+        return preg_replace_callback(
+            '/href="(?!http|#)([^"]+)"/i',
+            function ( $item ) {
+                if ( empty( $item ) ) {
+                    return '';
+                }
+                if ( !empty( $item[0] ) && empty( $item[1] ) ) {
+                    return $item[0];
+                }
+                if ( !empty( $item[1] ) ) {
+                    if ( $item[1] == '#' ) {
+                        return $item[0];
+                    }
+                    $href = apply_filters( 'dms_rewritten_url', $item[1], $this->rewrite_scenario );
+                    $href = '/' . apply_filters( 'dms_replaced_url', $href, $this->rewrite_scenario ) . '/';
+                    return 'href="' . $href . '"';
+                }
+                return $item[0];
+            },
+            $data,
+            -1
+        ) ?? $data;
+    }
+
+    /**
+     * Processes the HTML head section of the page and replaces any occurrences of the
+     * current host with the mapped host.
+     *
+     * @param string $data The HTML of the page.
+     *
+     * @return string The modified HTML with occurrences of the current host replaced.
+     */
+    public function process_head_section( $data ) : string {
+        // Match the content within the <head> tag
+        if ( preg_match( '/<head.*?>(.*?)<\\/head>/is', $data, $matches ) ) {
+            $headContent = $matches[1];
+            $updatedHeadContent = self::replace_host_occurrence( $headContent );
+            return str_replace( $matches[1], $updatedHeadContent, $data );
+        }
+        return $data;
+    }
+
+    /**
      * Rewrite rest url
      *
      * @param $url
@@ -362,6 +412,7 @@ class URI_Handler {
      * @return string
      */
     public function rewrite_the_content( $content ) : string {
+        $content = self::replace_href_occurrence( $content );
         return self::replace_host_occurrence( $content );
     }
 
@@ -405,9 +456,9 @@ class URI_Handler {
         $host = $this->request_params->get_base_host();
         $path = $this->request_params->get_base_path();
         if ( !empty( $path ) ) {
-            return str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain, $input );
+            return apply_filters( 'dms_replaced_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), self::REWRITING_GLOBAL );
         }
-        return str_ireplace( '://' . $host, '://' . $this->request_params->domain, $input );
+        return apply_filters( 'dms_replaced_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), self::REWRITING_GLOBAL );
     }
 
     /**
@@ -475,7 +526,7 @@ class URI_Handler {
      */
     public function rewrite_all_urls() {
         ob_start( function ( $buffer ) {
-            return self::replace_host_occurrence( $buffer );
+            return self::process_head_section( $buffer );
         } );
     }
 

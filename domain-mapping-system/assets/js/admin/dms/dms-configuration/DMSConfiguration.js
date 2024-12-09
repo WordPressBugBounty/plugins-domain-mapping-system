@@ -232,7 +232,7 @@ export default function DMSConfiguration({isPremium, upgradeUrl, restUrl, permal
             // Settings saved, but each domain requires at least one mapping.
             errors.push({
                 type: 'error',
-                message: domainsMap.length > 1 ? __("Settings saved, but each domain requires at least one mapping.", 'domain-mapping-system') : __("Domain requires at least one mapping.", 'domain-mapping-system'),
+                message: domainsMap.length > 1 ? __("Each domain requires at least one mapping.", 'domain-mapping-system') : __("Domain requires at least one mapping.", 'domain-mapping-system'),
             });
         }
         // Homepage non-primary

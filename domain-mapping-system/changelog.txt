@@ -1,3 +1,6 @@
+= 2.1.7 =
+* Bug fixes. 
+
 = 2.1.6 =
 * TranslatePress integration fixes.
 * Fixed some missed URL’s being rewritten in page source.

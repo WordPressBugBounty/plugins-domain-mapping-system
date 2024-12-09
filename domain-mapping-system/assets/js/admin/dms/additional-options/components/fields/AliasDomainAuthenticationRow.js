@@ -139,7 +139,7 @@ export default function AliasDomainAuthenticationRow({ slug, slugMaps, value, se
                                   closeMenuOnSelect={false}/>.
                 </>}
                 <span className="label"
-                      dangerouslySetInnerHTML={{__html: "&nbsp;" + sprintf(__("Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/cross-domain-authentication">', '</a>')}}></span>
+                      dangerouslySetInnerHTML={{__html: "&nbsp;" + sprintf(__("Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/alias-domain-authentication">', '</a>')}}></span>
                 {!isPremium && <>
                     &nbsp;
                     <a className="upgrade" href={upgradeUrl}>{__("Upgrade", 'domain-mapping-system')} &#8594;</a>

@@ -75,6 +75,9 @@ class Elementor {
 		if ( ! empty( $ajax_handler->data ) && ! empty ( $ajax_handler->data['redirect_url'] ) ) {
 			$this->frontend->handlers_init();
 			$mapping    = Helper::matching_mapping_from_db( $this->request_params->get_domain(), $this->request_params->get_path() );
+			if( empty( $mapping ) ) {
+				return;
+			}
 			$url        = $this->frontend->uri_handler->get_rewritten_url( $mapping, null, $ajax_handler->data['redirect_url'] );
 			$url        = apply_filters( 'dms_trp_translate_url', $url, $mapping );
 			$ajax_handler->data['redirect_url'] = $url;

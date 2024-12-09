@@ -129,10 +129,12 @@ class Mapping_Handler {
                              */
                             $this->matching_mapping_value = $mapping_value;
                             $mapper = ( new Mapper_Factory() )->make( $this->matching_mapping_value, $query );
-                            $query = $mapper->get_query();
-                            $this->mapped = true;
-                            if ( method_exists( $this, 'add_customizations__premium_only' ) ) {
-                                $this->add_customizations__premium_only();
+                            if ( !empty( $mapper ) ) {
+                                $query = $mapper->get_query();
+                                $this->mapped = true;
+                                if ( method_exists( $this, 'add_customizations__premium_only' ) ) {
+                                    $this->add_customizations__premium_only();
+                                }
                             }
                         }
                     }

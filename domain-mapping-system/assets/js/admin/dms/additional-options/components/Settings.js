@@ -163,6 +163,11 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
                                         updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
                                         isPremium={isPremium} upgradeUrl={upgradeUrl}
                                         loading={loading} siteUrl={siteUrl} debug={debug}/>
+            <CheckboxRow key="translate_press_only_one_language_for_domain" slug="dms_translate_press_only_one_language_for_domain"
+                         title={__("Language per Domain (TranslatePress):", 'domain-mapping-system')}
+                         value={settings.dms_translate_press_only_one_language_for_domain.value} updateValue={setSettings}
+                         description={sprintf(__("Assign a language to each domain. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/language-per-domain">', '</a>')}
+                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
             <li>
                 <div className="dms-n-additional-accordion-li">
                     <strong>{__("Yoast SEO", 'domain-mapping-system')}</strong>
@@ -183,12 +188,7 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
                          value={settings.dms_delete_upon_uninstall.value} updateValue={setSettings}
                          description={__("Delete plugin, data, and settings (full removal) when uninstalling.", 'domain-mapping-system') + ' ' + sprintf(__("%sWarning:%s This action is irreversible.", 'domain-mapping-system'), '<strong>', '</strong>')}
                          isPremium={true} upgradeUrl={upgradeUrl}/>
-            { isMultilingual && (
-            <CheckboxRow key="translate_press_only_one_language_for_domain" slug="dms_translate_press_only_one_language_for_domain"
-                         title={__("Translate Press: One Domain One Language", 'domain-mapping-system')}
-                         value={settings.dms_translate_press_only_one_language_for_domain.value} updateValue={setSettings}
-                         description={sprintf(__("Switch language to mapped domains if it exist. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="#">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/> )}
+
         </ul>}
         <div className="dms-n-row-submit-wrapper">
             <div className="dms-n-row-submit">

@@ -210,7 +210,7 @@ export default function Select({selectedData, defaultObjects, changed, checkSele
                          openMenuOnFocus={false}
                          isRtl={isRtl}
                          isMulti={isPremium}
-                         isClearable={true}
+                         isClearable={isPremium}
                          hideSelectedOptions={false}/>
             <LoadMoreValues hasMore={hasMoreValues} getValues={getMoreValues}/>
         </>

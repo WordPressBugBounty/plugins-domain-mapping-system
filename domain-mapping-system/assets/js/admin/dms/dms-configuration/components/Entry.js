@@ -344,8 +344,7 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                     info: `${host}${path ? '/' + path : ''}`,
                 };
             }).then(async res => {
-                if (changed.current.mappingValues) {
-                    // Get all mappings
+                     // Get all mappings
                     const result = await setAllMappingValues();
                     if (!result) {
                         return new Promise((resolve) => {
@@ -447,12 +446,6 @@ const Entry = forwardRef(({index, data, defaultObjects, updateEntry, deleteEntry
                             info: `${host}${path ? '/' + path : ''}`,
                         };
                     });
-                } else {
-                    return {
-                        type: 'success',
-                        message: __("Item saved successfully!", 'domain-mapping-system'),
-                    }
-                }
             });
         }).catch(e => {
             debug && console.error(e);
