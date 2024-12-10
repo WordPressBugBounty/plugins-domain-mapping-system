@@ -164,9 +164,9 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
                                         isPremium={isPremium} upgradeUrl={upgradeUrl}
                                         loading={loading} siteUrl={siteUrl} debug={debug}/>
             <CheckboxRow key="translate_press_only_one_language_for_domain" slug="dms_translate_press_only_one_language_for_domain"
-                         title={__("Language per Domain (TranslatePress):", 'domain-mapping-system')}
+                         title={__("Rewrite TranslatePress Language Switchers", 'domain-mapping-system')}
                          value={settings.dms_translate_press_only_one_language_for_domain.value} updateValue={setSettings}
-                         description={sprintf(__("Assign a language to each domain. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/language-per-domain">', '</a>')}
+                         description={sprintf(__("When using TranslatePress, check this box to rewrite the language switcher URLs to the alias domains. %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/language-per-domain">', '</a>')}
                          isPremium={isPremium} upgradeUrl={upgradeUrl}/>
             <li>
                 <div className="dms-n-additional-accordion-li">

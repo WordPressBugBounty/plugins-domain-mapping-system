@@ -6,7 +6,7 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.7
-Stable tag: 2.1.9
+Stable tag: 2.2.0
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -403,7 +403,7 @@ We really appreciate your input! We currently don't have a public repo, but you 
 
 == Changelog ==
 
-= 2.1.9 =
+= 2.2.0 =
 * Bug fixes. 
 
 See the full changelog in our [documentation](https://docs.domainmappingsystem.com/changelog/changelog). 
