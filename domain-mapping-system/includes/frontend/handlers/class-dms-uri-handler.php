@@ -252,8 +252,7 @@ class URI_Handler {
                     if ( $item[1] == '#' ) {
                         return $item[0];
                     }
-                    $href = apply_filters( 'dms_rewritten_url', $item[1], $this->rewrite_scenario );
-                    $href = '/' . apply_filters( 'dms_replaced_url', $href, $this->rewrite_scenario ) . '/';
+                    $href = '/' . apply_filters( 'dms_rewritten_url', $item[1], $this->rewrite_scenario ) . '/';
                     return 'href="' . $href . '"';
                 }
                 return $item[0];
@@ -456,9 +455,9 @@ class URI_Handler {
         $host = $this->request_params->get_base_host();
         $path = $this->request_params->get_base_path();
         if ( !empty( $path ) ) {
-            return apply_filters( 'dms_replaced_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), self::REWRITING_GLOBAL );
+            return apply_filters( 'dms_rewritten_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), $this->rewrite_scenario );
         }
-        return apply_filters( 'dms_replaced_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), self::REWRITING_GLOBAL );
+        return apply_filters( 'dms_rewritten_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), $this->rewrite_scenario );
     }
 
     /**
