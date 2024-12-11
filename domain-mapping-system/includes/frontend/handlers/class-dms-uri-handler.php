@@ -178,6 +178,24 @@ class URI_Handler {
             10,
             3
         );
+        add_filter(
+            'wp_resource_hints',
+            array($this, 'rewrite_hints'),
+            10,
+            2
+        );
+        add_filter(
+            'feed_link',
+            array($this, 'rewrite_feeds'),
+            10,
+            2
+        );
+        add_filter(
+            'get_shortlink',
+            array($this, 'rewrite_feeds'),
+            10,
+            2
+        );
         // Action for rewriting other urls
         do_action( 'dms_rewrite_uris' );
     }
@@ -520,16 +538,6 @@ class URI_Handler {
     }
 
     /**
-     * Rewrite All Urls in template redirect hook
-     *
-     */
-    public function rewrite_all_urls() {
-        ob_start( function ( $buffer ) {
-            return self::process_head_section( $buffer );
-        } );
-    }
-
-    /**
      * Ensures the buffered content is sent to the browser after modifications.
      *
      */
@@ -561,6 +569,23 @@ class URI_Handler {
             }
         }
         return $hints;
+    }
+
+    /**
+     * Rewrite WordPress feeds
+     *
+     * @param $hints
+     * @param $rel
+     *
+     * @return mixed
+     */
+    public function rewrite_feeds( $output, $feed ) {
+        $base_domain = $this->request_params->base_host;
+        $mapped_domain = $this->request_params->domain;
+        // Mapped domain
+        // Replace domain in dns-prefetch hints
+        $output = str_replace( $base_domain, $mapped_domain, $output );
+        return $output;
     }
 
 }
