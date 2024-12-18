@@ -279,7 +279,7 @@ class Admin {
             'site_url'           => home_url(),
             'rest_url'           => $this->get_rest_url(),
             'is_premium'         => (int) $this->fs->can_use_premium_code__premium_only(),
-            'upgrade_url'        => $this->fs->get_upgrade_url(),
+            'upgrade_url'        => 'https://domainmappingsystem.com/#pricing',
             'values_per_mapping' => Setting::find( 'dms_values_per_mapping' )->get_value() ?? 5,
             'mappings_per_page'  => Setting::find( 'dms_mappings_per_page' )->get_value() ?? 10,
             'paged'              => ( !empty( $_GET['paged'] ) ? $_GET['paged'] : 1 ),

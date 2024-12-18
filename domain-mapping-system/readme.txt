@@ -1,12 +1,12 @@
 === Domain Mapping System | Create Microsites with Multiple Alias Domains (multisite optional) ===
-Contributors: gauchoplugins, brandonfire, freemius
+Contributors: maartenbelmans, patrickposner
 Author URI: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&utm_campaign=dms
 Plugin URI: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&utm_campaign=dms
 Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&utm_campaign=dms
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.7
-Stable tag: 2.2.2
+Stable tag: 2.2.3
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -402,6 +402,12 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
+
+= 2.2.3 =
+
+* improved Freemius SDK integration
+* removed sub-settings pages
+* moved upgrade URL to external site
 
 = 2.2.2 =
 * Bug fixes. 

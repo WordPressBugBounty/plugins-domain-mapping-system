@@ -47,6 +47,8 @@ class Freemius {
         $this->fs = $this->fs_init();
         if ( !empty( $fs ) ) {
             $this->fs->add_filter( 'plugin_icon', [$this, 'dms_fs_custom_icon'] );
+            $this->fs->add_filter( 'show_deactivation_feedback_form', '__return_false' );
+            $this->fs->add_filter( 'show_deactivation_subscription_cancellation', '__return_false' );
         }
     }
 
@@ -72,8 +74,11 @@ class Freemius {
                 'has_affiliation' => 'selected',
                 'menu'            => array(
                     'slug'        => 'domain-mapping-system',
-                    'support'     => false,
                     'affiliation' => false,
+                    'contact'     => false,
+                    'support'     => false,
+                    'account'     => false,
+                    'pricing'     => false,
                 ),
                 'is_live'         => true,
             ) );
