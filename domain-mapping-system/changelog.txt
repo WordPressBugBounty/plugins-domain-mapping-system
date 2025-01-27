@@ -1,3 +1,11 @@
+= 2.2.4 =
+* SDK upgrade
+
+= 2.2.2 + 2.2.3 =
+* new ownership
+* CSS UI fixes
+* SDK upgrade
+
 = 2.2.1 =
 * Bug fixes. 
 
