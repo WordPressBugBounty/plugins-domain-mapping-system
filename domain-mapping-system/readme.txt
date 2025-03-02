@@ -6,7 +6,7 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.7
-Stable tag: 2.2.4
+Stable tag: 2.2.3
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -89,9 +89,6 @@ Whether you’re just looking for the simplicity of multiple domain mapping in a
 ## ⚒️ DEVELOPER FRIENDLY
 > Take advantage of the [REST API](https://docs.domainmappingsystem.com/features/rest-api) to add/delete domains automatically.
 
-## 🆘 TOP-NOTCH SUPPORT
-> Get red-carpet support from the [Gaucho Plugins](https://gauchoplugins.com/) team. Just [submit a ticket](https://domainmappingsystem.com/support/?utm_source=wporg&utm_medium=readme&utm_campaign=dms).
-
 ## DETAILED USE-CASE
 **Let's say you own 2 domains:** 
 > Primary domain (WordPress site): **my-awesome-site.com**
@@ -167,20 +164,6 @@ For detailed instructions, please see our [Documentation](https://docs.domainmap
 🌱 [PLANS & PRICING >](https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&utm_campaign=dms#pricing)
 
 🚧 [ROADMAP >](https://domainmappingsystem.com/roadmap/?utm_source=wporg&utm_medium=readme&utm_campaign=dms) - Feel free to submit feature requests!
-
-## GAUCHO PLUGINS PORTFOLIO
-
-**[Domain Mapping System](https://wordpress.org/plugins/domain-mapping-system/)**: Create microsites with alias domains
-
-**[Payment Page](https://wordpress.org/plugins/payment-page/)**: Start accepting payments in a beautiful payment form in less than 60 seconds
-
-**[Split Pay Plugin](https://wordpress.org/plugins/bsd-woo-stripe-connect-split-pay/)**: Split WooCommerce payments across multiple connected Stripe accounts. 
-
-**[China Payments Plugin](https://wordpress.org/plugins/wp-stripe-global-payments/)**: Accept WeChat Pay and Alipay payments from Chinese customers.   
-
-**[Blocked in China](https://wordpress.org/plugins/blocked-in-china/)**: Check if your website is available in the Chinese mainland.  
-
-**Speed in China**: Check your website’s speed in the Chinese mainland - coming soon!
 
 == Installation ==
 
@@ -402,10 +385,6 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
-
-= 2.2.4 =
-
-* SDK upgrade
 
 = 2.2.3 =
 
