@@ -303,8 +303,17 @@ class Helper {
      */
     public static function generate_url( ?string $host, ?string $path ) : string {
         $scheme = ( is_ssl() ? 'https://' : 'http://' );
-        $path = ( !empty( $path ) ? $path . '/' : '' );
-        return $scheme . $host . '/' . $path;
+        $host = ( !empty( $host ) ? untrailingslashit( $host ) : '' );
+        $path = ( !empty( $path ) ? untrailingslashit( $path ) : '' );
+        // Preserve or add trailing slash only when WP expects it
+        if ( $path !== '' ) {
+            // remove leading slash WordPress-style
+            $path = ltrim( $path, '/' );
+            // add or keep trailing slash following Settings ▷ Permalinks
+            $path = user_trailingslashit( $path, 'page' );
+            // second arg keeps it when structure demands
+        }
+        return $scheme . $host . (( $path ? '/' . $path : '' ));
     }
 
     /**
@@ -335,7 +344,7 @@ class Helper {
 
     /**
      * Checks if active theme is Divi
-     * 
+     *
      * @return bool
      */
     public static function active_theme_is_divi() {
@@ -344,7 +353,7 @@ class Helper {
 
     /**
      * Checks whether "Posts page" is active
-     * 
+     *
      * @return bool
      */
     public static function is_posts_page_active() : bool {
@@ -353,7 +362,7 @@ class Helper {
 
     /**
      * Checks whether latest posts homepage is active
-     * 
+     *
      * @return bool
      */
     public static function is_latest_posts_homepage_active() : bool {
@@ -371,8 +380,8 @@ class Helper {
 
     /**
      * Checks if the passed page is the "Posts page"
-     * 
-     * @param  int|null  $page_id
+     *
+     * @param int|null $page_id
      *
      * @return bool
      */
@@ -384,7 +393,7 @@ class Helper {
     /**
      * Checks if the passed page is the static homepage
      *
-     * @param  int|null  $page_id
+     * @param int|null $page_id
      *
      * @return bool
      */
@@ -396,7 +405,7 @@ class Helper {
 
     /**
      * Get class shortname
-     * 
+     *
      * @param string|object $className
      * @param bool $lowercase
      *
@@ -422,11 +431,11 @@ class Helper {
     }
 
     /**
-     * Checks if $path starts with $sub_path. 
+     * Checks if $path starts with $sub_path.
      * Basically this relates to URI paths
-     * 
-     * @param  string  $path
-     * @param  string  $sub_path
+     *
+     * @param string $path
+     * @param string $sub_path
      *
      * @return bool
      */
@@ -515,6 +524,7 @@ class Helper {
 
     /**
      * Get matching mapping with given host and path
+     *
      * @param $host
      * @param $path
      *
@@ -619,7 +629,7 @@ class Helper {
     /**
      * Get lang slug by lang code.
      *
-     * @param  string  $lang  The original lang code.
+     * @param string $lang The original lang code.
      *
      * @return string || null
      */
@@ -630,6 +640,10 @@ class Helper {
         }
         $lang_slugs = $setting['url-slugs'];
         if ( empty( $lang_slugs[$lang] ) ) {
+            // If the language code is already a 2-character code (like "ja"), return it as is
+            if ( strlen( $lang ) === 2 && ctype_lower( $lang ) ) {
+                return $lang;
+            }
             return self::get_lowercases_from_string( $lang );
         }
         return $lang_slugs[$lang];
@@ -641,8 +655,8 @@ class Helper {
      * This function takes an encoded key, decodes it, and searches for a matching
      * key in the provided array. If a match is found, the corresponding value is returned.
      *
-     * @param string $key   The encoded key to search for.
-     * @param array  $array The array to search within.
+     * @param string $key The encoded key to search for.
+     * @param array $array The array to search within.
      *
      * @return string|null The value associated with the decoded key, or null if not found.
      */

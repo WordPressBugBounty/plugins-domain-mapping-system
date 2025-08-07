@@ -1,3 +1,20 @@
+= 2.2.4.1 =
+* updated Freemius SDK
+* improved slash handling in generate_url method
+* TranslatePress: fixed PHP notice in integration
+* TranslatePress support for 2-character ISO-codes
+* Yoast SEO: fixed PHP notice (empty path)
+* Yoast SEO: added XSL mapping support
+* Yoast SEO fixed global mapping
+
+= 2.2.4 =
+* SDK upgrade
+
+= 2.2.2 + 2.2.3 =
+* new ownership
+* CSS UI fixes
+* SDK upgrade
+
 = 2.2.1 =
 * Bug fixes. 
 

@@ -4,7 +4,7 @@
  * Plugin Name: Domain Mapping System
  * Plugin URI: https://domainmappingsystem.com/
  * Description: Domain Mapping System is the most powerful way to manage alias domains and map them to any published resource - creating Microsites with ease!
- * Version: 2.2.3
+ * Version: 2.2.4.1
  * Author: Domain Mapping System
  * Author URI: https://domainmappingsystem.com/
  * License: GPL3
@@ -23,43 +23,44 @@
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-	die;
+    die;
 }
 if ( ! function_exists( 'DMS' ) ) {
-	/**
-	 * Plugin version.
-	 * Used SemVer - https://semver.org
-	 */
-	define( 'DMS_VERSION', '2.2.3' );
+    /**
+     * Plugin version.
+     * Used SemVer - https://semver.org
+     */
+    define( 'DMS_VERSION', '2.2.4.1' );
 
-	/**
-	 * Load activate/Deactivate files
-	 */
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-dms-activator.php';
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-dms-deactivator.php';
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-dms-uninstaller.php';
+    /**
+     * Load activate/Deactivate files
+     */
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-dms-activator.php';
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-dms-deactivator.php';
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-dms-uninstaller.php';
 
-	/**
-	 * The core plugin class
-	 */
-	require plugin_dir_path( __FILE__ ) . 'includes/class-dms.php';
-	/**
-	 * Returns the main instance of DMS.
-	 *
-	 * @return DMS\Includes\DMS
-	 * @since  1.0.0
-	 */
-	function DMS() {
-		return DMS\Includes\DMS::get_instance();
-	}
+    /**
+     * The core plugin class
+     */
+    require plugin_dir_path( __FILE__ ) . 'includes/class-dms.php';
+    /**
+     * Returns the main instance of DMS.
+     *
+     * @return DMS\Includes\DMS
+     * @since  1.0.0
+     */
+    function DMS()
+    {
+        return DMS\Includes\DMS::get_instance();
+    }
 
-	/**
-	 * Begins execution of the plugin.
-	 */
-	DMS();
+    /**
+     * Begins execution of the plugin.
+     */
+    DMS();
 }
 /**
  * Activate/Deactivate hooks
  */
-register_activation_hook( __FILE__, array( ( new \DMS\Includes\Activator() ), 'activate' ) );
-register_deactivation_hook( __FILE__, array( ( new \DMS\Includes\Deactivator() ), 'deactivate' ) );
+register_activation_hook( __FILE__, array ( ( new \DMS\Includes\Activator() ), 'activate' ) );
+register_deactivation_hook( __FILE__, array ( ( new \DMS\Includes\Deactivator() ), 'deactivate' ) );
