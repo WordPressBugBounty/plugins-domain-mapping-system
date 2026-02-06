@@ -123,7 +123,7 @@ export const createMappingValues = (restUrl, restNonce, id, data) => {
         primary: +item.primary,
     }));
     // Send request
-    return fetch(`${restUrl}mapping_values/batch`, {
+    return fetch(`${restUrl}mapping_values/batch/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ export const mappingMetaBatch = (restUrl, restNonce, mappingId, createData, upda
             data: deleteData
         })
     }
-    return fetch(`${restUrl}mappings/${mappingId}/mapping_metas/batch`, {
+    return fetch(`${restUrl}mappings/${mappingId}/mapping_metas/batch/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -289,7 +289,7 @@ export const updateMappingValues = (restUrl, restNonce, id, data, deleteData) =>
         });
     }
     // Send request
-    return fetch(`${restUrl}mapping_values/batch`, {
+    return fetch(`${restUrl}mapping_values/batch/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -338,7 +338,7 @@ export const deleteMapping = (restUrl, restNonce, id) => {
  * @return {Promise<void>}
  */
 export const deleteMappings = (restUrl, restNonce, ids) => {
-    return fetch(`${restUrl}mappings/batch`, {
+    return fetch(`${restUrl}mappings/batch/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -486,7 +486,7 @@ export const updateSetting = (restUrl, restNonce, data) => {
  * @return {Promise<any>}
  */
 export const updateSettings = (restUrl, restNonce, data) => {
-    return fetch(`${restUrl}settings/batch`, {
+    return fetch(`${restUrl}settings/batch/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

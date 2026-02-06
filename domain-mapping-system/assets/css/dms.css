@@ -1184,6 +1184,7 @@
 }
 .dms-n .dms-n-additional-accordion-body ul li {
   padding: 6px 0;
+  margin-bottom: 10px;
 }
 .dms-n .dms-n-additional-accordion-li {
   display: -ms-flexbox;
@@ -1191,6 +1192,7 @@
   -ms-flex-align: center;
       align-items: center;
   line-height: 1.2;
+  margin-bottom: 10px;
 }
 .dms-n .dms-n-additional-accordion-li.del {
   margin-top: 15px;

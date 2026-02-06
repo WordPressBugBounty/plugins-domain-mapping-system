@@ -104,100 +104,165 @@ export default function Settings({isPremium, upgradeUrl, restUrl, restNonce, loa
         setNotices(notices.filter((notice, i) => i !== index));
     }
 
-    return <div className="dms-n-additional-accordion-body">
-        {showSettings && <ul>
-            <GlobalDomainMappingRow slug="dms_global_mapping" slugMaps="dms_main_mapping"
-                                    value={settings.dms_global_mapping.value}
-                                    selectValue={settings.dms_main_mapping.value}
-                                    updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
-                                    isPremium={isPremium} upgradeUrl={upgradeUrl}
-                                    loading={loading} debug={debug}/>
-            <CheckboxRow key="archive_global_mapping" slug="dms_archive_global_mapping"
-                         title={__("Global Archive Mapping", 'domain-mapping-system')}
-                         value={settings.dms_archive_global_mapping.value} updateValue={setSettings}
-                         description={sprintf(__("All posts within an archive or category automatically map to the specified domain (archive mappings override Global Domain Mapping). Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/global-archive-category-mapping">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <CheckboxRow key="woo_shop_global_mapping" slug="dms_woo_shop_global_mapping"
-                         title={__("Global WooCommerce Product Mapping", 'domain-mapping-system')}
-                         value={settings.dms_woo_shop_global_mapping.value} updateValue={setSettings}
-                         description={sprintf(__("When you map a domain to the Shop page, all products on your site will be available through that domain. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/global-product-mapping-for-woocommerce">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <CheckboxRow key="global_parent_page_mapping" slug="dms_global_parent_page_mapping"
-                         title={__("Global Parent Page Mapping", 'domain-mapping-system')}
-                         value={settings.dms_global_parent_page_mapping.value} updateValue={setSettings}
-                         description={sprintf(__("Automatically map all pages attached to a Parent Page.  Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/global-parent-page-mapping">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <CheckboxRow key="remove_parent_page_slug_from_child" slug="dms_remove_parent_page_slug_from_child"
-                         title={__("Parent Page Slugs", 'domain-mapping-system')}
-                         value={settings.dms_remove_parent_page_slug_from_child.value} updateValue={setSettings}
-                         description={sprintf(__("Remove Parent Page slugs from mapped Child Page URLs. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/global-parent-page-mapping">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <CheckboxRow key="force_site_visitors" slug="dms_force_site_visitors"
-                         title={__("Redirection", 'domain-mapping-system')}
-                         value={settings.dms_force_site_visitors.value} updateValue={setSettings}
-                         description={sprintf(__("Force site visitors to see only mapped domains of a page (e.g. - disallow visitors to see the primary site domain version of a page). Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/redirect-site-visitors-to-mapped-domains">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <UrlRewritingRow slug="dms_rewrite_urls_on_mapped_page" slugSc="dms_rewrite_urls_on_mapped_page_sc"
-                             value={settings.dms_rewrite_urls_on_mapped_page.value}
-                             selectValue={settings.dms_rewrite_urls_on_mapped_page_sc.value} updateValue={setSettings}
-                             isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <Handling404Row slug="dms_unmapped_pages_handling" slugSc="dms_unmapped_pages_handling_sc"
-                            value={settings.dms_unmapped_pages_handling.value}
-                            selectValue={settings.dms_unmapped_pages_handling_sc.value} updateValue={setSettings}
-                            isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <SubdomainAuthenticationRow slug="dms_subdomain_authentication" slugMaps="dms_subdomain_authentication_mappings"
-                                        value={settings.dms_subdomain_authentication.value}
-                                        selectValue={settings.dms_subdomain_authentication_mappings.value}
-                                        updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
-                                        isPremium={isPremium} upgradeUrl={upgradeUrl}
-                                        loading={loading} siteUrl={siteUrl} debug={debug}/>
-            <AliasDomainAuthenticationRow slug="dms_alias_domain_authentication" slugMaps="dms_alias_domain_authentication_mappings"
-                                        value={settings.dms_alias_domain_authentication.value}
-                                        selectValue={settings.dms_alias_domain_authentication_mappings.value}
-                                        updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
-                                        isPremium={isPremium} upgradeUrl={upgradeUrl}
-                                        loading={loading} siteUrl={siteUrl} debug={debug}/>
-            <WcSubdomainAuthenticationRow slug="dms_wc_subdomain_authentication" slugMaps="dms_wc_subdomain_authentication_mappings"
-                                        value={settings.dms_wc_subdomain_authentication.value}
-                                        selectValue={settings.dms_wc_subdomain_authentication_mappings.value}
-                                        updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
-                                        isPremium={isPremium} upgradeUrl={upgradeUrl}
-                                        loading={loading} siteUrl={siteUrl} debug={debug}/>
-            <CheckboxRow key="translate_press_only_one_language_for_domain" slug="dms_translate_press_only_one_language_for_domain"
-                         title={__("Rewrite TranslatePress Language Switchers", 'domain-mapping-system')}
-                         value={settings.dms_translate_press_only_one_language_for_domain.value} updateValue={setSettings}
-                         description={sprintf(__("When using TranslatePress, check this box to rewrite the language switcher URLs to the alias domains. %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/features/language-per-domain">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <li>
-                <div className="dms-n-additional-accordion-li">
-                    <strong>{__("Yoast SEO", 'domain-mapping-system')}</strong>
+    return <>
+        {showSettings && <>
+            {/* Core */}
+            <div className="dms-n-row dms-n-core">
+                <ul>
+                    <li>
+                        <div className="dms-n-additional-accordion-li">
+                            <h3 className={"dms-n-row-header"}>{__("Core", 'domain-mapping-system')}</h3>
+                        </div>
+                    </li>
+                    <GlobalDomainMappingRow slug="dms_global_mapping" slugMaps="dms_main_mapping"
+                                            value={settings.dms_global_mapping.value}
+                                            selectValue={settings.dms_main_mapping.value}
+                                            updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
+                                            isPremium={isPremium} upgradeUrl={upgradeUrl}
+                                            loading={loading} debug={debug}/>
+                    <CheckboxRow key="archive_global_mapping" slug="dms_archive_global_mapping"
+                                 title={__("Global Archive Mapping", 'domain-mapping-system')}
+                                 value={settings.dms_archive_global_mapping.value} updateValue={setSettings}
+                                 description={sprintf(__("All posts within an archive or category automatically map to the specified domain (archive mappings override Global Domain Mapping). Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/features/global-archive-category-mapping\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <CheckboxRow key="global_parent_page_mapping" slug="dms_global_parent_page_mapping"
+                                 title={__("Global Parent Page Mapping", 'domain-mapping-system')}
+                                 value={settings.dms_global_parent_page_mapping.value} updateValue={setSettings}
+                                 description={sprintf(__("Automatically map all pages attached to a Parent Page.  Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/features/global-parent-page-mapping\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <CheckboxRow key="remove_parent_page_slug_from_child" slug="dms_remove_parent_page_slug_from_child"
+                                 title={__("Parent Page Slugs", 'domain-mapping-system')}
+                                 value={settings.dms_remove_parent_page_slug_from_child.value} updateValue={setSettings}
+                                 description={sprintf(__("Remove Parent Page slugs from mapped Child Page URLs. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/features/global-parent-page-mapping\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <CheckboxRow key="force_site_visitors" slug="dms_force_site_visitors"
+                                 title={__("Redirection", 'domain-mapping-system')}
+                                 value={settings.dms_force_site_visitors.value} updateValue={setSettings}
+                                 description={sprintf(__("Force site visitors to see only mapped domains of a page (e.g. - disallow visitors to see the primary site domain version of a page). Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/features/redirect-site-visitors-to-mapped-domains\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <UrlRewritingRow slug="dms_rewrite_urls_on_mapped_page" slugSc="dms_rewrite_urls_on_mapped_page_sc"
+                                     value={settings.dms_rewrite_urls_on_mapped_page.value}
+                                     selectValue={settings.dms_rewrite_urls_on_mapped_page_sc.value}
+                                     updateValue={setSettings}
+                                     isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <Handling404Row slug="dms_unmapped_pages_handling" slugSc="dms_unmapped_pages_handling_sc"
+                                    value={settings.dms_unmapped_pages_handling.value}
+                                    selectValue={settings.dms_unmapped_pages_handling_sc.value}
+                                    updateValue={setSettings}
+                                    isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <CheckboxRow key="delete_upon_uninstall" slug="dms_delete_upon_uninstall"
+                                 title={__("Data Removal", 'domain-mapping-system')}
+                                 value={settings.dms_delete_upon_uninstall.value} updateValue={setSettings}
+                                 description={__("Delete plugin, data, and settings (full removal) when uninstalling.", 'domain-mapping-system') + ' ' + sprintf(__("%sWarning:%s This action is irreversible.", 'domain-mapping-system'), '<strong>', '</strong>')}
+                                 isPremium={true} upgradeUrl={upgradeUrl}/>
+                </ul>
+                <div className="dms-n-row-submit-wrapper">
+                    <div className="dms-n-row-submit">
+                        <button className="dms-submit" onClick={save}
+                                disabled={!showSettings}>{__("Save", 'domain-mapping-system')}</button>
+                        {saving && <div className="dms-n-loader"></div>}
+                    </div>
                 </div>
-            </li>
-            <CheckboxRow key="seo_options_per_domain" slug="dms_seo_options_per_domain"
-                         title={__("Duplicate Yoast SEO Options", 'domain-mapping-system')}
-                         value={settings.dms_seo_options_per_domain.value} updateValue={setSettings}
-                         description={sprintf(__("Each mapped page will have duplicated Yoast SEO options for each mapped domain tied to it.  Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/integrations-and-compatibility/wordpress-plugins/yoast-seo">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <CheckboxRow key="seo_sitemap_per_domain" slug="dms_seo_sitemap_per_domain"
-                         title={__("Yoast Sitemap per Domain", 'domain-mapping-system')}
-                         value={settings.dms_seo_sitemap_per_domain.value} updateValue={setSettings}
-                         description={sprintf(__("Dynamically generate a unique sitemap per domain. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class="dms-n-row-subheader-link" target="_blank" href="https://docs.domainmappingsystem.com/integrations-and-compatibility/wordpress-plugins/yoast-seo#sitemap-per-domain">', '</a>')}
-                         isPremium={isPremium} upgradeUrl={upgradeUrl}/>
-            <CheckboxRow key="delete_upon_uninstall" slug="dms_delete_upon_uninstall"
-                         title={__("Data Removal", 'domain-mapping-system')}
-                         value={settings.dms_delete_upon_uninstall.value} updateValue={setSettings}
-                         description={__("Delete plugin, data, and settings (full removal) when uninstalling.", 'domain-mapping-system') + ' ' + sprintf(__("%sWarning:%s This action is irreversible.", 'domain-mapping-system'), '<strong>', '</strong>')}
-                         isPremium={true} upgradeUrl={upgradeUrl}/>
-
-        </ul>}
-        <div className="dms-n-row-submit-wrapper">
-            <div className="dms-n-row-submit">
-                <button className="dms-submit" onClick={save}
-                        disabled={!showSettings}>{__("Save", 'domain-mapping-system')}</button>
-                {saving && <div className="dms-n-loader"></div>}
             </div>
-            {!!notices.length && notices.map((notice, index) => <Notice key={index} index={index}
-                                                                        dismiss={dismissNotice} data={notice}/>)}
-        </div>
-    </div>
+
+            {/* Authentication */}
+            <div className="dms-n-row dms-n-authentication">
+                <ul>
+                    <li>
+                        <div className="dms-n-additional-accordion-li">
+                            <h3 className={"dms-n-row-header"}>{__("Authentication", 'domain-mapping-system')}</h3>
+                        </div>
+                    </li>
+                    <SubdomainAuthenticationRow slug="dms_subdomain_authentication"
+                                                slugMaps="dms_subdomain_authentication_mappings"
+                                                value={settings.dms_subdomain_authentication.value}
+                                                selectValue={settings.dms_subdomain_authentication_mappings.value}
+                                                updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
+                                                isPremium={isPremium} upgradeUrl={upgradeUrl}
+                                                loading={loading} siteUrl={siteUrl} debug={debug}/>
+                    <AliasDomainAuthenticationRow slug="dms_alias_domain_authentication"
+                                                  slugMaps="dms_alias_domain_authentication_mappings"
+                                                  value={settings.dms_alias_domain_authentication.value}
+                                                  selectValue={settings.dms_alias_domain_authentication_mappings.value}
+                                                  updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
+                                                  isPremium={isPremium} upgradeUrl={upgradeUrl}
+                                                  loading={loading} siteUrl={siteUrl} debug={debug}/>
+                </ul>
+                <div className="dms-n-row-submit-wrapper">
+                    <div className="dms-n-row-submit">
+                        <button className="dms-submit" onClick={save}
+                                disabled={!showSettings}>{__("Save", 'domain-mapping-system')}</button>
+                        {saving && <div className="dms-n-loader"></div>}
+                    </div>
+                </div>
+            </div>
+
+            {/* WooCommerce */}
+            <div className="dms-n-row dms-n-woocommerce">
+                <ul>
+                    <li>
+                        <div className="dms-n-additional-accordion-li">
+                            <h3 className={"dms-n-row-header"}>{__("WooCommerce", 'domain-mapping-system')}</h3>
+                        </div>
+                    </li>
+                    <CheckboxRow key="woo_shop_global_mapping" slug="dms_woo_shop_global_mapping"
+                                 title={__("Global WooCommerce Product Mapping", 'domain-mapping-system')}
+                                 value={settings.dms_woo_shop_global_mapping.value} updateValue={setSettings}
+                                 description={sprintf(__("When you map a domain to the Shop page, all products on your site will be available through that domain. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/features/global-product-mapping-for-woocommerce\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <WcSubdomainAuthenticationRow slug="dms_wc_subdomain_authentication"
+                                                  slugMaps="dms_wc_subdomain_authentication_mappings"
+                                                  value={settings.dms_wc_subdomain_authentication.value}
+                                                  selectValue={settings.dms_wc_subdomain_authentication_mappings.value}
+                                                  updateValue={setSettings} restUrl={restUrl} restNonce={restNonce}
+                                                  isPremium={isPremium} upgradeUrl={upgradeUrl}
+                                                  loading={loading} siteUrl={siteUrl} debug={debug}/>
+                </ul>
+                <div className="dms-n-row-submit-wrapper">
+                    <div className="dms-n-row-submit">
+                        <button className="dms-submit" onClick={save}
+                                disabled={!showSettings}>{__("Save", 'domain-mapping-system')}</button>
+                        {saving && <div className="dms-n-loader"></div>}
+                    </div>
+                </div>
+            </div>
+
+            {/* Extensions */}
+            <div className="dms-n-row dms-n-extensions">
+                <ul>
+                    <li>
+                        <div className="dms-n-additional-accordion-li">
+                            <h3 className={"dms-n-row-header"}>{__("Extensions", 'domain-mapping-system')}</h3>
+                        </div>
+                    </li>
+                    <CheckboxRow key="translate_press_only_one_language_for_domain"
+                                 slug="dms_translate_press_only_one_language_for_domain"
+                                 title={__("Rewrite TranslatePress Language Switchers", 'domain-mapping-system')}
+                                 value={settings.dms_translate_press_only_one_language_for_domain.value}
+                                 updateValue={setSettings}
+                                 description={sprintf(__("When using TranslatePress, check this box to rewrite the language switcher URLs to the alias domains. %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/features/language-per-domain\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <CheckboxRow key="seo_options_per_domain" slug="dms_seo_options_per_domain"
+                                 title={__("Duplicate Yoast SEO Options", 'domain-mapping-system')}
+                                 value={settings.dms_seo_options_per_domain.value} updateValue={setSettings}
+                                 description={sprintf(__("Each mapped page will have duplicated Yoast SEO options for each mapped domain tied to it.  Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/integrations-and-compatibility/wordpress-plugins/yoast-seo\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                    <CheckboxRow key="seo_sitemap_per_domain" slug="dms_seo_sitemap_per_domain"
+                                 title={__("Yoast Sitemap per Domain", 'domain-mapping-system')}
+                                 value={settings.dms_seo_sitemap_per_domain.value} updateValue={setSettings}
+                                 description={sprintf(__("Dynamically generate a unique sitemap per domain. Read more in our %sdocumentation%s.", 'domain-mapping-system'), '<a class=\"dms-n-row-subheader-link\" target=\"_blank\" href=\"https://docs.domainmappingsystem.com/integrations-and-compatibility/wordpress-plugins/yoast-seo#sitemap-per-domain\">', '</a>')}
+                                 isPremium={isPremium} upgradeUrl={upgradeUrl}/>
+                </ul>
+                <div className="dms-n-row-submit-wrapper">
+                    <div className="dms-n-row-submit">
+                        <button className="dms-submit" onClick={save}
+                                disabled={!showSettings}>{__("Save", 'domain-mapping-system')}</button>
+                        {saving && <div className="dms-n-loader"></div>}
+                    </div>
+                </div>
+            </div>
+        </>}
+        {!!notices.length && notices.map((notice, index) => <Notice key={index} index={index}
+                                                                    dismiss={dismissNotice} data={notice}/>)}
+    </>
 }

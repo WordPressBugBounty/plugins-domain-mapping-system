@@ -36,10 +36,8 @@ window.addEventListener('DOMContentLoaded', () => {
                                   restNonce={restNonce} mapsPaged={mapsPaged} mapsPerPage={mapsPerPage}
                                   valuesPerPage={valuesPerMapping} isMultilingual={isMultilingual} debug={debugModeOn}/>
             </div>
-            <div className="dms-n-row dms-n-additional">
-                <AdditionalOptions isPremium={isPremium} upgradeUrl={upgradeUrl} restUrl={restUrl}
-                                   restNonce={restNonce} siteUrl={siteUrl} isMultilingual={isMultilingual}  debug={debugModeOn}/>
-            </div>
+            <AdditionalOptions isPremium={isPremium} upgradeUrl={upgradeUrl} restUrl={restUrl}
+                               restNonce={restNonce} siteUrl={siteUrl} isMultilingual={isMultilingual}  debug={debugModeOn}/>
             <div className="dms-n-row dms-n-post-types">
                 <AvailablePostTypes availableObjects={availableObjects} isPremium={isPremium} upgradeUrl={upgradeUrl}
                                     restUrl={restUrl} restNonce={restNonce} debug={debugModeOn}/>

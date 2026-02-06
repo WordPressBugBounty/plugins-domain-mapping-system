@@ -4,7 +4,7 @@
  * Plugin Name: Domain Mapping System
  * Plugin URI: https://domainmappingsystem.com/
  * Description: Domain Mapping System is the most powerful way to manage alias domains and map them to any published resource - creating Microsites with ease!
- * Version: 2.2.4.1
+ * Version: 2.2.4.3
  * Author: Domain Mapping System
  * Author URI: https://domainmappingsystem.com/
  * License: GPL3
@@ -30,7 +30,7 @@ if ( ! function_exists( 'DMS' ) ) {
      * Plugin version.
      * Used SemVer - https://semver.org
      */
-    define( 'DMS_VERSION', '2.2.4.1' );
+    define( 'DMS_VERSION', '2.2.4.3' );
 
     /**
      * Load activate/Deactivate files
@@ -59,6 +59,7 @@ if ( ! function_exists( 'DMS' ) ) {
      */
     DMS();
 }
+
 /**
  * Activate/Deactivate hooks
  */

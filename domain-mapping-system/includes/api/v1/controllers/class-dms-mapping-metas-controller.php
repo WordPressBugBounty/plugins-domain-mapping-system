@@ -26,7 +26,7 @@ class Mapping_Metas_Controller extends Rest_Controller {
 	 * @return void
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/batch', array(
+		register_rest_route( $this->namespace, '/' . $this->rest_base . '/batch/', array(
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'batch' ),

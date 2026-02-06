@@ -5,8 +5,8 @@ Plugin URI: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&
 Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&utm_campaign=dms
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
-Tested up to: 6.7
-Stable tag: 2.2.4.1
+Tested up to: 6.8
+Stable tag: 2.2.4.3
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -385,6 +385,17 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
+
+= 2.2.4.3 =
+
+* updated build files
+
+= 2.2.4.2 =
+
+* improved admin UI (segmented settings)
+* navigation link rewrite improvements
+* Rest API endpoint normalisation (save settings bug)
+* Freemius SDK upgrade
 
 = 2.2.4.1 =
 
