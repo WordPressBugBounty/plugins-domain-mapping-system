@@ -58,6 +58,10 @@ class Elementor {
 	 * Ensure the correct post context for Elementor rendering
 	 */
 	public function ensure_correct_post_context( $element ) {
+		if ( ! isset( $this->frontend->mapping_handler ) ) {
+			return;
+		}
+
 		if ( $this->frontend->mapping_handler->mapped && ! empty( $this->frontend->mapping_handler->matching_mapping_value ) ) {
 			$object_id = $this->frontend->mapping_handler->matching_mapping_value->object_id;
 			if ( $object_id && get_the_ID() !== (int) $object_id ) {
@@ -74,6 +78,10 @@ class Elementor {
 	 * Fix Elementor Pro Theme Builder conditions on mapped domains
 	 */
 	public function fix_theme_builder_conditions( $condition, $args ) {
+		if ( ! isset( $this->frontend->mapping_handler ) ) {
+			return $condition;
+		}
+
 		if ( $this->frontend->mapping_handler->mapped ) {
 			// If we are on a mapped page, we might want to force certain conditions to match
 			// This is complex as conditions vary. 
