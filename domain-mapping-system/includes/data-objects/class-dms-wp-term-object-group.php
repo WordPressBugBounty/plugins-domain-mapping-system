@@ -41,6 +41,10 @@ class WP_Term_Object_Group extends Wp_Object_Group {
 	 * @return string
 	 */
 	private static function get_taxonomy_key( string $post_type, string $taxonomy_name ): string {
-		return $taxonomy_name === 'category' ? 'categories' : "cat_{$post_type}_{$taxonomy_name}";
+		if ( $taxonomy_name === 'category' && $post_type === 'post' ) {
+			return 'categories';
+		}
+
+		return "cat_{$post_type}_{$taxonomy_name}";
 	}
 }

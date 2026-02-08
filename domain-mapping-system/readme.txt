@@ -6,7 +6,7 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.8
-Stable tag: 2.2.4.3
+Stable tag: 2.2.5
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -385,6 +385,30 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
+
+= 2.2.5 =
+
+* TranslatePress: fixed redirection loops and subdirectory conflicts for language-per-domain setups
+* TranslatePress: improved language switcher rewriting to correctly use mapped domains
+* TranslatePress: fixed fatal errors and PHP 8.1+ deprecation warnings in SEO Pack integration
+* TranslatePress: added support for ACF link and URL field rewriting
+* Elementor: fixed missing styles on subdomains by rewriting asset URLs in the uploads directory
+* Elementor: ensured correct post context and template loading on mapped domains
+* Elementor: improved integration to support both Free and Pro versions
+* Global Mapping: fixed issues where global mapping domains were redirected to the primary domain
+* Micro-sites: prevented unmapped pages from being accessible on mapped domains
+* Search: improved compatibility with Relevanssi and AJAX search on mapped domains
+* Admin: fixed "white screen" error on settings page caused by Freemius initialization issues
+* URI Handler: improved host and path replacement accuracy for asset and content rewriting
+* Helper: implemented robust path matching with trailing slash normalization
+* Yoast SEO: fixed empty mapping modal display anomaly
+* Yoast SEO: improved sitemap generation on mapped domains
+* Redirection: preserved UTM and other query parameters during redirections
+* URL Rewriting: improved nav menu link rewriting for all item types
+* URL Rewriting: added Global Domain Mapping support for term and post type links
+* Multisite: improved sunrise.php to respect native site mappings and expanded path exemptions
+* Added support for domain mapping based on page taxonomies
+* Fixed taxonomy key synchronization between settings UI and backend for non-default post types
 
 = 2.2.4.3 =
 

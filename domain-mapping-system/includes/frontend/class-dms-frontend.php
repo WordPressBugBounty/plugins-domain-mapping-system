@@ -285,10 +285,29 @@ class Frontend {
      * @return void
      */
     private function define_whether_is_dms_hosted() {
+        $domain = $this->request_params->get_domain();
         $mapping = Mapping::where( [
-            'host' => $this->request_params->get_domain(),
+            'host' => $domain,
         ] );
-        $this->dms_hosted = !empty( $mapping[0] );
+        if ( !empty( $mapping[0] ) ) {
+            $this->dms_hosted = true;
+            return;
+        }
+        if ( !empty( $this->global_domain_mapping ) ) {
+            $main_mapping_ids = Setting::find( 'dms_main_mapping' )->get_value();
+            if ( !empty( $main_mapping_ids ) ) {
+                $main_mappings = Mapping::where( [
+                    'id' => (array) $main_mapping_ids,
+                ] );
+                foreach ( $main_mappings as $main_mapping ) {
+                    if ( $main_mapping->get_host() === $domain ) {
+                        $this->dms_hosted = true;
+                        return;
+                    }
+                }
+            }
+        }
+        $this->dms_hosted = false;
     }
 
     /**

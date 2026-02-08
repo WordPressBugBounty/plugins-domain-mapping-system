@@ -136,6 +136,7 @@ class URI_Handler {
             10,
             2
         );
+        add_filter( 'upload_dir', array($this, 'rewrite_upload_dir'), 99 );
         add_filter(
             'admin_url',
             array($this, 'rewrite_admin_url'),
@@ -165,6 +166,12 @@ class URI_Handler {
             array($this, 'rewrite_image_srcset'),
             10,
             5
+        );
+        add_filter(
+            'elementor/frontend/the_content',
+            array($this, 'rewrite_the_content'),
+            10,
+            1
         );
         add_filter(
             'template_directory_uri',
@@ -207,6 +214,21 @@ class URI_Handler {
      */
     public function is_allowed_to_rewrite_links() {
         return !empty( $this->url_rewrite );
+    }
+
+    /**
+     * Rewrite upload dir url
+     *
+     * @param $upload_dir
+     *
+     * @return mixed
+     */
+    public function rewrite_upload_dir( $upload_dir ) {
+        if ( !empty( $upload_dir['url'] ) ) {
+            $upload_dir['url'] = self::replace_host_occurrence( $upload_dir['url'] );
+            $upload_dir['baseurl'] = self::replace_host_occurrence( $upload_dir['baseurl'] );
+        }
+        return $upload_dir;
     }
 
     /**
@@ -473,9 +495,11 @@ class URI_Handler {
         $host = $this->request_params->get_base_host();
         $path = $this->request_params->get_base_path();
         if ( !empty( $path ) ) {
-            return apply_filters( 'dms_rewritten_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), $this->rewrite_scenario );
+            $url = str_ireplace( '://' . $host . '/' . $path . '/', '://' . $this->request_params->domain . '/', $input );
+            $url = str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain, $url );
+            return apply_filters( 'dms_rewritten_url', $url, $this->rewrite_scenario );
         }
-        return apply_filters( 'dms_rewritten_url', str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain . '/', $input ), $this->rewrite_scenario );
+        return apply_filters( 'dms_rewritten_url', str_ireplace( '://' . $host, '://' . $this->request_params->domain, $input ), $this->rewrite_scenario );
     }
 
     /**

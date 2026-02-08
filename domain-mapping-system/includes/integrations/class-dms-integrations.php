@@ -139,7 +139,7 @@ class Integrations {
      * @return void
      */
     public function run() : void {
-        add_action( 'plugins_loaded', array($this, 'initialize_integrations') );
+        add_action( 'plugins_loaded', array($this, 'initialize_integrations'), 0 );
     }
 
     /**
@@ -161,7 +161,7 @@ class Integrations {
      * @return bool
      */
     public function initialize_elementor_integration() : bool {
-        if ( is_plugin_active( 'elementor/elementor.php' ) && is_plugin_active( 'elementor-pro/elementor-pro.php' ) ) {
+        if ( is_plugin_active( 'elementor/elementor.php' ) ) {
             Elementor::run();
             return true;
         }

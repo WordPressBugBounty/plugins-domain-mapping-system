@@ -11,18 +11,32 @@ add_filter( 'pre_get_site_by_path', 'dms_get_site_by_host' );
 function dms_get_site_by_host( $site ) {
 	global $wpdb;
 	$current_path = $_SERVER['REQUEST_URI'];
-	$is_admin = ( str_contains( $current_path, 'wp-admin' ) || str_contains( $current_path, 'wp-login' ) );
+	$is_admin = ( 
+		str_contains( $current_path, 'wp-admin' ) || 
+		str_contains( $current_path, 'wp-login' ) ||
+		str_contains( $current_path, 'wp-json' ) ||
+		str_contains( $current_path, 'wp-cron.php' ) ||
+		str_contains( $current_path, 'wp-signup.php' ) ||
+		str_contains( $current_path, 'wp-activate.php' )
+	);
 
 	if ( ! is_multisite() || $is_admin ) {
 		return $site;
 	}
+	$domain       = strtolower( stripslashes( $_SERVER['HTTP_HOST'] ?? '' ) );
+
+	// Check if the domain is natively associated with a site.
+	$native_site = $wpdb->get_row( $wpdb->prepare( "SELECT blog_id FROM {$wpdb->blogs} WHERE domain = %s AND path = %s", $domain, '/' ) );
+	if ( $native_site ) {
+		return $site; // Return original site to let WP handle its native mapping.
+	}
+
 	$query_string = '';
-	$domain       = $_SERVER['HTTP_HOST'];
 	foreach ( get_sites() as $blog ) {
 		$prefix = $wpdb->get_blog_prefix( $blog->id );
 		$result = $wpdb->get_row( "SHOW TABLES LIKE '" . $prefix . "dms_mappings'" );
 		if ( ! empty( $result ) ) {
-			$query_string .= "SELECT `host`, '" . $blog->id . "' as `blog_id` FROM " . $prefix . "dms_mappings WHERE host='" . $domain . "' UNION ";
+			$query_string .= $wpdb->prepare( "SELECT `host`, %d as `blog_id` FROM " . $prefix . "dms_mappings WHERE host=%s", $blog->id, $domain ) . " UNION ";
 		}
 	}
 	$pos = strrpos( $query_string, 'UNION' );

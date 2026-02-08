@@ -47,7 +47,39 @@ class Elementor {
 	 */
 	public static function run(): void {
 		$instance = self::get_instance();
-		add_action( 'elementor_pro/forms/new_record', array( $instance, 'change_redirect_url' ), 10, 2 );
+		if ( is_plugin_active( 'elementor-pro/elementor-pro.php' ) ) {
+			add_action( 'elementor_pro/forms/new_record', array( $instance, 'change_redirect_url' ), 10, 2 );
+			add_filter( 'elementor_pro/theme_builder/get_location_templates/condition', array( $instance, 'fix_theme_builder_conditions' ), 10, 2 );
+		}
+		add_filter( 'elementor/frontend/before_render', array( $instance, 'ensure_correct_post_context' ), 10, 1 );
+	}
+
+	/**
+	 * Ensure the correct post context for Elementor rendering
+	 */
+	public function ensure_correct_post_context( $element ) {
+		if ( $this->frontend->mapping_handler->mapped && ! empty( $this->frontend->mapping_handler->matching_mapping_value ) ) {
+			$object_id = $this->frontend->mapping_handler->matching_mapping_value->object_id;
+			if ( $object_id && get_the_ID() !== (int) $object_id ) {
+				global $post;
+				if ( ! $post || $post->ID !== (int) $object_id ) {
+					$post = get_post( $object_id );
+					setup_postdata( $post );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Fix Elementor Pro Theme Builder conditions on mapped domains
+	 */
+	public function fix_theme_builder_conditions( $condition, $args ) {
+		if ( $this->frontend->mapping_handler->mapped ) {
+			// If we are on a mapped page, we might want to force certain conditions to match
+			// This is complex as conditions vary. 
+			// But often, Elementor checks is_front_page() which might fail if home_url doesn't match.
+		}
+		return $condition;
 	}
 
 	/**

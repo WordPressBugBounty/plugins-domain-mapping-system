@@ -298,10 +298,11 @@ class Helper {
      *
      * @param string|null $host
      * @param string|null $path
+     * @param string|null $query_string
      *
      * @return string
      */
-    public static function generate_url( ?string $host, ?string $path ) : string {
+    public static function generate_url( ?string $host, ?string $path, ?string $query_string = null ) : string {
         $scheme = ( is_ssl() ? 'https://' : 'http://' );
         $host = ( !empty( $host ) ? untrailingslashit( $host ) : '' );
         $path = ( !empty( $path ) ? untrailingslashit( $path ) : '' );
@@ -313,7 +314,11 @@ class Helper {
             $path = user_trailingslashit( $path, 'page' );
             // second arg keeps it when structure demands
         }
-        return $scheme . $host . (( $path ? '/' . $path : '' ));
+        $url = $scheme . $host . (( $path ? '/' . $path : '' ));
+        if ( !empty( $query_string ) ) {
+            $url .= '?' . ltrim( $query_string, '?' );
+        }
+        return $url;
     }
 
     /**
@@ -544,26 +549,27 @@ class Helper {
             if ( empty( $all_mappings ) ) {
                 return null;
             }
+            $path = trim( $path, '/' );
             if ( !empty( $path ) ) {
                 // Check maybe there is mapping with the requested url path
                 $mappings = array_values( array_filter( $all_mappings, function ( $item ) use($path) {
-                    return strtolower( $path ) === strtolower( $item->path ) && !empty( $item->path );
+                    return strtolower( $path ) === strtolower( trim( $item->path, '/' ) ) && !empty( $item->path );
                 } ) );
                 // Check the mapping the path of which is contained in the requested url path
                 if ( empty( $mappings ) ) {
                     $mappings = array_values( array_filter( $all_mappings, function ( $item ) use($path) {
-                        return Helper::path_starts_with( strtolower( $path ), strtolower( $item->path ) );
+                        return Helper::path_starts_with( strtolower( $path ), strtolower( trim( $item->path, '/' ) ) ) && !empty( $item->path );
                     } ) );
                 }
                 // Empty path in mapping
                 if ( empty( $mappings ) ) {
                     $mappings = array_values( array_filter( $all_mappings, function ( $item ) {
-                        return empty( $item->path );
+                        return empty( trim( $item->path, '/' ) );
                     } ) );
                 }
             } else {
                 $mappings = array_values( array_filter( $all_mappings, function ( $item ) {
-                    return empty( $item->path );
+                    return empty( trim( $item->path, '/' ) );
                 } ) );
             }
             if ( empty( $mappings ) ) {

@@ -105,6 +105,10 @@ class Mapping_Handler {
     public function run( $query ) : object {
         try {
             if ( $query->is_main_query() ) {
+                // Prevent interference with Relevanssi search
+                if ( $query->is_search() || !empty( $query->query_vars['relevanssi'] ) ) {
+                    return $query;
+                }
                 $this->request_params->path = apply_filters( 'dms_request_params_path', $this->request_params->path );
                 $this->mapping = Helper::matching_mapping_from_db( $this->request_params->get_domain(), $this->request_params->get_path() );
                 $this->domain_path_match = $this->is_the_path_correct();
@@ -163,7 +167,7 @@ class Mapping_Handler {
                 // Correct the case of the request path if necessary
                 if ( !str_starts_with( $request_path, $mapping_path ) ) {
                     $corrected_path = str_replace( strtolower( $mapping_path ), $mapping_path, strtolower( $request_path ) );
-                    $url = Helper::generate_url( $mapping_host, $corrected_path );
+                    $url = Helper::generate_url( $mapping_host, $corrected_path, $this->request_params->query_string );
                 }
                 // Redirect if the URL is set
                 if ( !empty( $url ) ) {
@@ -211,7 +215,7 @@ class Mapping_Handler {
      * @return false|mixed
      */
     public function prevent_canonical_redirection( $canonical ) : ?string {
-        if ( $this->mapped ) {
+        if ( $this->mapped || !empty( $this->frontend->global_mapping_handler ) && $this->frontend->global_mapping_handler->mapped ) {
             return null;
         }
         return $canonical;
@@ -226,7 +230,7 @@ class Mapping_Handler {
      * @return false|mixed
      */
     public function prevent_redirection( $location, $status ) {
-        if ( $this->mapped ) {
+        if ( $this->mapped || !empty( $this->frontend->global_mapping_handler ) && $this->frontend->global_mapping_handler->mapped ) {
             $should_redirect = apply_filters( 'dms_enable_redirect_for_mapped_pages', false, $location );
             if ( !$should_redirect ) {
                 return false;

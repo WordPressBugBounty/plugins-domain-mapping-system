@@ -100,6 +100,8 @@ class WP_Queried_Object_Handler {
 					elseif ( $wp_query->is_404() ) {
 						$unmapped_scenario = true;
 					}
+				} else {
+					$unmapped_scenario = true;
 				}
 			}
 
