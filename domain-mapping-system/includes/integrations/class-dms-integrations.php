@@ -149,9 +149,7 @@ class Integrations {
      * @return void
      */
     public function initialize_integrations_early() : void {
-        if ( method_exists( $this, 'initialize_translate_press_integration_early__premium_only' ) ) {
-            $this->initialize_translate_press_integration_early__premium_only();
-        }
+        $this->initialize_translate_press_integration_early__premium_only();
     }
 
     /**
