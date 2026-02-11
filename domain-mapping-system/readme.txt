@@ -5,8 +5,8 @@ Plugin URI: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&
 Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme&utm_campaign=dms
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
-Tested up to: 6.8
-Stable tag: 2.2.5.1
+Tested up to: 6.9
+Stable tag: 2.2.5.2
 Requires PHP: 7.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -385,6 +385,20 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
+
+= 2.2.5.2 =
+
+* TranslatePress: fixed primary language redirection back to the original domain
+* Yoast: fix links in mapped XML sitemaps
+* prevent canonical redirect (unmapped scenario fallback)
+* TranslatePress: fixed language switcher, redirection and switching stability on mapped domains
+* TranslatePress: redirect primary language back to original domain when not explicitly mapped
+* TranslatePress: improved link generation logic for mapped domains (slug preservation)
+* TranslatePress: hardened integration against early initialization fatals
+* TranslatePress: fixed asset 404 errors on mapped domains
+* TranslatePress: improved mapping detection for language-specific links
+* Helper: improved mapping specificity to prefer longest path matches
+* Core: fixed case-correction redirects to stay on the mapped domain
 
 = 2.2.5.1 =
 

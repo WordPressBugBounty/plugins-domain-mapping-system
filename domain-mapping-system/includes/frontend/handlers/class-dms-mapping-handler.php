@@ -172,6 +172,7 @@ class Mapping_Handler {
                 // Redirect if the URL is set
                 if ( !empty( $url ) ) {
                     $this->redirect_to = $url;
+                    $this->mapped = true;
                     add_action( 'template_redirect', array($this, 'redirect_to_correct_url'), 1 );
                     return false;
                 }
@@ -214,9 +215,9 @@ class Mapping_Handler {
      *
      * @return false|mixed
      */
-    public function prevent_canonical_redirection( $canonical ) : ?string {
+    public function prevent_canonical_redirection( $canonical ) {
         if ( $this->mapped || !empty( $this->frontend->global_mapping_handler ) && $this->frontend->global_mapping_handler->mapped ) {
-            return null;
+            return false;
         }
         return $canonical;
     }

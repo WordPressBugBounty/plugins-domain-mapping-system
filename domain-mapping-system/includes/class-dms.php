@@ -102,8 +102,8 @@ final class DMS {
         $this->set_locale();
         $this->run_cron();
         $this->define_admin_classes();
-        $this->run_integrations();
         $this->define_frontend();
+        $this->run_integrations();
         $this->run_migrations();
         $this->api_init();
     }

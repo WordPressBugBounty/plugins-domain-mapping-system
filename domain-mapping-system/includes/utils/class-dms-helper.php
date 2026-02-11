@@ -286,7 +286,7 @@ class Helper {
      * @return false
      */
     public static function redirect_to( ?string $url ) : bool {
-        if ( empty( $url ) || class_exists( 'DMS\\Includes\\Integrations\\Seo_Yoast' ) && Seo_Yoast::get_instance()->is_sitemap_requested() ) {
+        if ( empty( $url ) || class_exists( 'DMS\\Includes\\Integrations\\SEO\\Yoast\\Seo_Yoast' ) && Seo_Yoast::get_instance()->is_sitemap_requested() ) {
             return false;
         }
         wp_redirect( $url );
@@ -305,20 +305,24 @@ class Helper {
     public static function generate_url( ?string $host, ?string $path, ?string $query_string = null ) : string {
         $scheme = ( is_ssl() ? 'https://' : 'http://' );
         $host = ( !empty( $host ) ? untrailingslashit( $host ) : '' );
-        $path = ( !empty( $path ) ? untrailingslashit( $path ) : '' );
-        // Preserve or add trailing slash only when WP expects it
+        $path = ( !empty( $path ) ? $path : '' );
         if ( $path !== '' ) {
-            // remove leading slash WordPress-style
-            $path = ltrim( $path, '/' );
+            // preserve trailing slash intent
+            $ends_with_slash = str_ends_with( $path, '/' );
+            $path = trim( $path, '/' );
+            // collapse multiple slashes
+            $path = preg_replace( '#/+#', '/', $path );
             // add or keep trailing slash following Settings ▷ Permalinks
             $path = user_trailingslashit( $path, 'page' );
-            // second arg keeps it when structure demands
+            if ( $ends_with_slash ) {
+                $path = trailingslashit( $path );
+            }
         }
-        $url = $scheme . $host . (( $path ? '/' . $path : '' ));
+        $url = $scheme . $host . (( $path !== '' ? '/' . ltrim( $path, '/' ) : '' ));
         if ( !empty( $query_string ) ) {
             $url .= '?' . ltrim( $query_string, '?' );
         }
-        return $url;
+        return self::normalise_url_slashes( $url );
     }
 
     /**
@@ -560,6 +564,11 @@ class Helper {
                     $mappings = array_values( array_filter( $all_mappings, function ( $item ) use($path) {
                         return Helper::path_starts_with( strtolower( $path ), strtolower( trim( $item->path, '/' ) ) ) && !empty( $item->path );
                     } ) );
+                    if ( !empty( $mappings ) ) {
+                        usort( $mappings, function ( $a, $b ) {
+                            return strlen( $b->path ) - strlen( $a->path );
+                        } );
+                    }
                 }
                 // Empty path in mapping
                 if ( empty( $mappings ) ) {
@@ -639,7 +648,10 @@ class Helper {
      *
      * @return string || null
      */
-    public static function get_lang_slug( string $lang ) : ?string {
+    public static function get_lang_slug( ?string $lang ) : ?string {
+        if ( empty( $lang ) ) {
+            return null;
+        }
         $setting = Setting::find( 'trp_settings' )->get_value();
         if ( empty( $setting ) ) {
             return null;
@@ -676,6 +688,14 @@ class Helper {
             }
         }
         return $value;
+    }
+
+    public static function normalise_url_slashes( string $url ) : string {
+        if ( str_contains( $url, '://' ) ) {
+            $parts = explode( '://', $url, 2 );
+            return $parts[0] . '://' . preg_replace( '#/+#', '/', $parts[1] );
+        }
+        return preg_replace( '#/+#', '/', $url );
     }
 
 }

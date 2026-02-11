@@ -139,7 +139,17 @@ class Integrations {
      * @return void
      */
     public function run() : void {
-        add_action( 'plugins_loaded', array($this, 'initialize_integrations'), 0 );
+        add_action( 'plugins_loaded', array($this, 'initialize_integrations_early'), 0 );
+        add_action( 'plugins_loaded', array($this, 'initialize_integrations'), 10 );
+    }
+
+    /**
+     * Initialize integrations early (priority 0)
+     *
+     * @return void
+     */
+    public function initialize_integrations_early() : void {
+        $this->initialize_translate_press_integration_early__premium_only();
     }
 
     /**

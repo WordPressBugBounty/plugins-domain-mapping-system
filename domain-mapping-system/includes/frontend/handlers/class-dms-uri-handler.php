@@ -239,7 +239,7 @@ class URI_Handler {
      * @return mixed|string
      */
     public function rewrite_script_modules_src( $url ) {
-        return self::replace_host_occurrence( $url );
+        return $this->replace_script_style_src( $url );
     }
 
     /**
@@ -251,20 +251,8 @@ class URI_Handler {
      */
     public function replace_host_occurrence( $data ) : string {
         $host = $this->request_params->get_base_host();
-        $dot = '';
-        if ( $this->request_params->is_subdirectory_install() ) {
-            $path = $this->request_params->get_base_path();
-            $path = explode( '/', $path );
-            $path = join( '\\/', $path );
-            return preg_replace_callback(
-                '/(https?:\\/\\/)(' . $host . ')((\\/' . $path . '\\/\\w+)*\\/)?([\\w\\-.]+[^#?\\s]+)' . $dot . '(#[\\w\\-]+)?/',
-                array($this, 'actual_host_replace'),
-                $data,
-                -1
-            ) ?? $data;
-        }
         return preg_replace_callback(
-            '/(https?:\\/\\/)(' . $host . ')(\\/[\\w\\/\\-]*)?([\\w\\-.]+[^#?\\s]+)?' . $dot . '(#[\\w\\-]+)?/',
+            '/(https?:\\/\\/)(' . $host . ')([^"\'\\s<>]*)/i',
             array($this, 'actual_host_replace'),
             $data,
             -1
@@ -292,7 +280,32 @@ class URI_Handler {
                     if ( $item[1] == '#' ) {
                         return $item[0];
                     }
-                    $href = '/' . apply_filters( 'dms_rewritten_url', $item[1], $this->rewrite_scenario ) . '/';
+                    $rewritten = apply_filters( 'dms_rewritten_url', $item[1], $this->rewrite_scenario );
+                    // Don't append trailing slashes to assets or files
+                    $is_asset = false;
+                    $asset_indicators = [
+                        'wp-includes',
+                        'wp-content',
+                        'wp-admin',
+                        'wp-json',
+                        '/js/',
+                        '/css/',
+                        'thickbox'
+                    ];
+                    foreach ( $asset_indicators as $indicator ) {
+                        if ( str_contains( $item[1], $indicator ) ) {
+                            $is_asset = true;
+                            break;
+                        }
+                    }
+                    if ( !$is_asset && preg_match( '/\\.(js|css|png|jpg|jpeg|gif|svg|woff2?|otf|ttf|ico)($|\\?)/i', $item[1] ) ) {
+                        $is_asset = true;
+                    }
+                    if ( $is_asset ) {
+                        $href = '/' . ltrim( $rewritten, '/' );
+                    } else {
+                        $href = '/' . trim( $rewritten, '/' ) . '/';
+                    }
                     return 'href="' . $href . '"';
                 }
                 return $item[0];
@@ -329,7 +342,7 @@ class URI_Handler {
      * @return array|mixed|string|string[]
      */
     public function rewrite_rest_url( $url, $path ) : string {
-        return self::replace_host_occurrence( $url );
+        return $this->actual_host_replace( $url );
     }
 
     /**
@@ -342,7 +355,7 @@ class URI_Handler {
      * @return string
      */
     public function rewrite_plugins_url( $url, $path, $plugin ) {
-        return self::replace_host_occurrence( $url );
+        return $this->actual_host_replace( $url );
     }
 
     /**
@@ -440,7 +453,7 @@ class URI_Handler {
      * @return string
      */
     public function rewrite_stylesheet_uri( string $stylesheet_dir_uri ) : string {
-        return self::replace_host_occurrence( $stylesheet_dir_uri );
+        return $this->actual_host_replace( $stylesheet_dir_uri );
     }
 
     /**
@@ -463,7 +476,7 @@ class URI_Handler {
      * @return string
      */
     public function rewrite_template_uri( $template_dir_uri ) : string {
-        return self::replace_host_occurrence( $template_dir_uri );
+        return $this->actual_host_replace( $template_dir_uri );
     }
 
     /**
@@ -474,7 +487,51 @@ class URI_Handler {
      * @return string
      */
     public function replace_script_style_src( $src ) : string {
-        $src = self::replace_host_occurrence( $src );
+        // First, safely swap the host without touching query strings
+        $src = $this->actual_host_replace( $src );
+        // Strip any TranslatePress language slug that may have been prefixed to asset URLs
+        if ( !empty( $src ) ) {
+            $parsed = wp_parse_url( $src );
+            $path = ( isset( $parsed['path'] ) ? $parsed['path'] : '' );
+            if ( !empty( $path ) ) {
+                // Collapse accidental double slashes and ensure leading slash
+                $path = preg_replace( '#/{2,}#', '/', $path );
+                if ( $path[0] !== '/' ) {
+                    $path = '/' . $path;
+                }
+                // If TranslatePress is active, get its published language slugs
+                $trp_settings = \DMS\Includes\Data_Objects\Setting::find( 'trp_settings' )->get_value();
+                $slugs = [];
+                if ( is_array( $trp_settings ) && !empty( $trp_settings['url-slugs'] ) && is_array( $trp_settings['url-slugs'] ) ) {
+                    $slugs = array_values( $trp_settings['url-slugs'] );
+                }
+                // Remove a leading language slug only when it is immediately followed by an assets directory
+                if ( !empty( $slugs ) ) {
+                    foreach ( $slugs as $slug ) {
+                        $pattern = '#^/' . preg_quote( $slug, '#' ) . '/+(?=(wp-includes|wp-content|wp-admin|wp-json|js|css)/)#i';
+                        $new_path = preg_replace(
+                            $pattern,
+                            '/',
+                            $path,
+                            1
+                        );
+                        if ( $new_path !== null && $new_path !== $path ) {
+                            $path = $new_path;
+                            break;
+                        }
+                    }
+                }
+                $query = ( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
+                $fragment = ( isset( $parsed['fragment'] ) ? '#' . $parsed['fragment'] : '' );
+                // Rebuild the URL if we parsed a host
+                if ( !empty( $parsed ) && isset( $parsed['host'] ) ) {
+                    $src = (( isset( $parsed['scheme'] ) ? $parsed['scheme'] . '://' : '' )) . $parsed['host'] . (( isset( $parsed['port'] ) ? ':' . $parsed['port'] : '' )) . $path . $query . $fragment;
+                } else {
+                    $src = $path . $query . $fragment;
+                }
+                $src = \DMS\Includes\Utils\Helper::normalise_url_slashes( $src );
+            }
+        }
         if ( Helper::check_if_bedrock() ) {
             $src = str_replace( $this->request_params->domain, $this->request_params->domain . '/wp', $src );
         }
