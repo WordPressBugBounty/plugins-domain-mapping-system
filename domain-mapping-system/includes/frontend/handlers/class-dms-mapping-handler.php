@@ -111,6 +111,9 @@ class Mapping_Handler {
                 }
                 $this->request_params->path = apply_filters( 'dms_request_params_path', $this->request_params->path );
                 $this->mapping = Helper::matching_mapping_from_db( $this->request_params->get_domain(), $this->request_params->get_path() );
+                if ( $this->mapping ) {
+                    $this->mapped = true;
+                }
                 $this->domain_path_match = $this->is_the_path_correct();
                 if ( $this->domain_path_match ) {
                     $this->mapping_values = ( $this->mapping ? Mapping_Value::where( [
@@ -166,7 +169,7 @@ class Mapping_Handler {
             if ( str_starts_with( strtolower( $request_path ), strtolower( $mapping_path ) ) ) {
                 // Correct the case of the request path if necessary
                 if ( !str_starts_with( $request_path, $mapping_path ) ) {
-                    $corrected_path = str_replace( strtolower( $mapping_path ), $mapping_path, strtolower( $request_path ) );
+                    $corrected_path = Helper::str_replace_once( strtolower( $mapping_path ), $mapping_path, strtolower( $request_path ) );
                     $url = Helper::generate_url( $mapping_host, $corrected_path, $this->request_params->query_string );
                 }
                 // Redirect if the URL is set
@@ -232,6 +235,17 @@ class Mapping_Handler {
      */
     public function prevent_redirection( $location, $status ) {
         if ( $this->mapped || !empty( $this->frontend->global_mapping_handler ) && $this->frontend->global_mapping_handler->mapped ) {
+            // Allow redirects that stay on the same mapped domain (e.g. slug normalization)
+            $target_host = wp_parse_url( $location, PHP_URL_HOST );
+            if ( !empty( $target_host ) && strcasecmp( $target_host, $this->request_params->get_domain() ) === 0 ) {
+                return $location;
+            }
+            // Allow redirects targeting the base (primary) host and rewrite them to stay on the mapped domain
+            $base_host = $this->request_params->get_base_host();
+            if ( !empty( $target_host ) && !empty( $base_host ) && strcasecmp( $target_host, $base_host ) === 0 ) {
+                $location = str_ireplace( '://' . $base_host, '://' . $this->request_params->get_domain(), $location );
+                return $location;
+            }
             $should_redirect = apply_filters( 'dms_enable_redirect_for_mapped_pages', false, $location );
             if ( !$should_redirect ) {
                 return false;

@@ -18,7 +18,7 @@ class Request_Params {
 	 *
 	 * @var string
 	 */
-	public string $query_string;
+	public string $query_string = '';
 
 	/**
 	 * Pagination path of the current page

@@ -258,11 +258,7 @@ class Admin {
 	 * @return string
 	 */
 	public function get_rest_url() {
-		if (get_option('permalink_structure')) {
-			return rest_url('/dms/v1/');
-		} else {
-			return add_query_arg('rest_route', '/dms/v1/', site_url('/'));
-		}
+		return get_rest_url( null, 'dms/v1/' );
 	}
 
 	/**

@@ -6,8 +6,8 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 6.9
-Stable tag: 2.2.5.2
-Requires PHP: 7.1
+Stable tag: 2.2.5.4
+Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -385,6 +385,17 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
+
+= 2.2.5.4 =
+
+* Improvement: improved code performance by up to 50% on larger sites.
+* Fix: fixed a PHP memory issue.
+* Fix: fixed blank WooCommerce category pages.
+* Other: updated minimum PHP version to 7.4.
+
+= 2.2.5.3 =
+
+* avoid fatal error when loading extensions early (required for TP)
 
 = 2.2.5.2 =
 

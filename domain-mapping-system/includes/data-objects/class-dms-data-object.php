@@ -16,6 +16,8 @@ abstract class Data_Object implements JsonSerializable {
 	 */
 	protected ?array $data;
 
+    protected static array $query_cache = [];
+
 	/**
 	 * Constructor
 	 *
@@ -32,7 +34,18 @@ abstract class Data_Object implements JsonSerializable {
 	 * @return void
 	 */
 	public function hydrate(): void {
-		foreach ( $this->data as $key => $value ) {
+
+        if ( empty( $this->data ) ) {
+            return;
+        }
+
+        foreach ( $this->data as $key => $value ) {
+            if ( property_exists( $this, $key ) ) {
+                $this->$key = $value;
+            }
+        }
+        // Renoved the below because there are no setters so this was redundant.
+		/*foreach ( $this->data as $key => $value ) {
 			if ( property_exists( $this, $key ) ) {
 				$setter = 'set' . '_' . strtolower( $key );
 				if ( method_exists( $this, $setter ) ) {
@@ -41,7 +54,8 @@ abstract class Data_Object implements JsonSerializable {
 					$this->$key = $value;
 				}
 			}
-		}
+		}*/
+
 	}
 
 	/**
@@ -83,6 +97,8 @@ abstract class Data_Object implements JsonSerializable {
 
 		$data['id'] = $inserted_id;
 
+        self::clear_query_cache();
+
 		return self::make( $data );
 	}
 
@@ -97,6 +113,14 @@ abstract class Data_Object implements JsonSerializable {
 		return new static( $data );
 	}
 
+    protected static function get_table(): string {
+        if ( ! defined( static::class . '::TABLE' ) ) {
+            return '';
+        }
+
+        return static::TABLE;
+    }
+
 	/**
 	 * Gets data objects from db corresponding to conditions
 	 *
@@ -109,7 +133,22 @@ abstract class Data_Object implements JsonSerializable {
 	 * @return array
 	 */
 	public static function wpdb_where( array $conditions, ?int $paged = null, ?int $limit = 1, ?string $order_by = 'id', ?string $ordering = 'ASC' ): array {
-		global $wpdb;
+		
+        global $wpdb;
+
+        $table = self::get_table();
+
+        if ( empty( $table ) ) {
+            return [];
+        }
+
+        // Build cache key from all parameters
+        $cache_key = $table . md5( serialize( [ $conditions, $paged, $limit, $order_by, $ordering ] ) );
+
+        if ( !empty( self::$query_cache[ $table ] ) && isset( self::$query_cache[ $table ][ $cache_key ] ) ) {
+            return self::$query_cache[ $table ][ $cache_key ];
+        }
+
 		$where_clause = '1';
 		$values       = array();
 
@@ -129,7 +168,7 @@ abstract class Data_Object implements JsonSerializable {
 		$order_by     = esc_sql( $order_by );
 		$ordering     = ! empty( $ordering ) && strtoupper( $ordering ) === 'DESC' ? 'DESC' : 'ASC';
 		$order_by_str = ! empty( $order_by ) ? "ORDER BY `$order_by` $ordering" : "";
-		$query        = "SELECT * FROM `" . $wpdb->prefix . static::TABLE . "` WHERE $where_clause $order_by_str ";
+		$query        = "SELECT * FROM `" . $wpdb->prefix . $table . "` WHERE $where_clause $order_by_str ";
 		$query        = ! empty( $values ) ? $wpdb->prepare( $query, $values ) : $query;
 		$paged        = is_null( $paged ) || $paged < 1 ? 1 : $paged;  // Ensure $paged is at least 1
 		$limit        = (int) $limit;
@@ -151,7 +190,14 @@ abstract class Data_Object implements JsonSerializable {
 			}
 		}
 
+        if( ! isset( self::$query_cache[ $table ] ) ) {
+            self::$query_cache[ $table ] = [];
+        }
+
+        self::$query_cache[ $table ][ $cache_key ] = $data;
+
 		return $data;
+
 	}
 
 	/**
@@ -167,6 +213,16 @@ abstract class Data_Object implements JsonSerializable {
 
 		return !empty( $result ) ? self::make( $result ) : null;
 	}
+
+    private static function clear_query_cache(): void {
+
+        $table = self::get_table();
+
+        if( ! empty( $table ) && isset( self::$query_cache[ $table ] ) ) {
+            self::$query_cache[ $table ] = [];
+        }
+
+    }
 
 	/**
 	 * Deletes data object
@@ -184,6 +240,8 @@ abstract class Data_Object implements JsonSerializable {
 		if ( $result === false ) {
 			throw new DMS_Exception( 'not_found', __( 'Object not found', 'domain-mapping-system' ) );
 		}
+
+        self::clear_query_cache();
 
 		return true;
 	}
@@ -203,6 +261,8 @@ abstract class Data_Object implements JsonSerializable {
 		$wpdb->update( $wpdb->prefix . static::TABLE, $data, $where );
 
 		$data = array_merge( $where, $data );
+        
+        self::clear_query_cache();
 
 		return self::make( $data );
 	}

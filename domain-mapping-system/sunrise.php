@@ -1,4 +1,12 @@
 <?php
+
+// PHP 7.4 compat.
+if ( ! function_exists( 'str_contains' ) ) {
+	function str_contains( string $haystack, string $needle ): bool {
+		return $needle === '' || strpos( $haystack, $needle ) !== false;
+	}
+}
+
 add_filter( 'pre_get_site_by_path', 'dms_get_site_by_host' );
 /**
  * Finds blog in which mapped current domain if exist then returns blog

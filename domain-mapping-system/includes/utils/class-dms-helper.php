@@ -652,19 +652,29 @@ class Helper {
         if ( empty( $lang ) ) {
             return null;
         }
+        // Static cache to store already resolved slugs.
+        static $cache = [];
+        // Return from cache if available.
+        if ( isset( $cache[$lang] ) ) {
+            return $cache[$lang];
+        }
         $setting = Setting::find( 'trp_settings' )->get_value();
         if ( empty( $setting ) ) {
+            $cache[$lang] = null;
             return null;
         }
-        $lang_slugs = $setting['url-slugs'];
+        $lang_slugs = $setting['url-slugs'] ?? [];
         if ( empty( $lang_slugs[$lang] ) ) {
             // If the language code is already a 2-character code (like "ja"), return it as is
             if ( strlen( $lang ) === 2 && ctype_lower( $lang ) ) {
+                $cache[$lang] = $lang;
                 return $lang;
             }
-            return self::get_lowercases_from_string( $lang );
+            $cache[$lang] = self::get_lowercases_from_string( $lang );
+            return $cache[$lang];
         }
-        return $lang_slugs[$lang];
+        $cache[$lang] = $lang_slugs[$lang];
+        return $cache[$lang];
     }
 
     /**
@@ -690,12 +700,22 @@ class Helper {
         return $value;
     }
 
+    private static $url_cache = [];
+
     public static function normalise_url_slashes( string $url ) : string {
-        if ( str_contains( $url, '://' ) ) {
-            $parts = explode( '://', $url, 2 );
-            return $parts[0] . '://' . preg_replace( '#/+#', '/', $parts[1] );
+        if ( isset( self::$url_cache[$url] ) ) {
+            return self::$url_cache[$url];
         }
-        return preg_replace( '#/+#', '/', $url );
+        $pos = strpos( $url, '://' );
+        if ( $pos !== false ) {
+            $scheme = substr( $url, 0, $pos );
+            $rest = substr( $url, $pos + 3 );
+            $new_url = $scheme . '://' . preg_replace( '#/+#', '/', $rest );
+        } else {
+            $new_url = preg_replace( '#/+#', '/', $url );
+        }
+        self::$url_cache[$url] = $new_url;
+        return $new_url;
     }
 
 }
