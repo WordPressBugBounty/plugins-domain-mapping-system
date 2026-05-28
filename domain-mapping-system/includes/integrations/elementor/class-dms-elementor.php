@@ -66,12 +66,30 @@ class Elementor {
 			$object_id = $this->frontend->mapping_handler->matching_mapping_value->object_id;
 			if ( $object_id && get_the_ID() !== (int) $object_id ) {
 				global $post;
+
+				if ( $this->is_secondary_post_context( (int) $object_id ) ) {
+					return;
+				}
+
 				if ( ! $post || $post->ID !== (int) $object_id ) {
 					$post = get_post( $object_id );
 					setup_postdata( $post );
 				}
 			}
 		}
+	}
+
+	/**
+	 * Check if Elementor is rendering a secondary loop item inside the mapped page.
+	 */
+	private function is_secondary_post_context( int $object_id ): bool {
+		global $post;
+
+		if ( ! $post instanceof \WP_Post || $post->ID === $object_id ) {
+			return false;
+		}
+
+		return get_queried_object_id() === $object_id;
 	}
 
 	/**

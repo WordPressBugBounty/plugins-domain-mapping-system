@@ -251,8 +251,11 @@ class URI_Handler {
      */
     public function replace_host_occurrence( $data ) : string {
         $host = $this->request_params->get_base_host();
+        if ( empty( $host ) ) {
+            return $data;
+        }
         return preg_replace_callback(
-            '/(https?:\\/\\/)(' . $host . ')([^"\'\\s<>]*)/i',
+            '/(https?:\\/\\/)' . preg_quote( $host, '/' ) . '(?=[:\\/?#]|$)([^"\'\\s<>]*)/i',
             array($this, 'actual_host_replace'),
             $data,
             -1
@@ -551,12 +554,35 @@ class URI_Handler {
         }
         $host = $this->request_params->get_base_host();
         $path = $this->request_params->get_base_path();
+        if ( empty( $host ) ) {
+            return apply_filters( 'dms_rewritten_url', $input, $this->rewrite_scenario );
+        }
+        $host_pattern = preg_quote( $host, '/' );
         if ( !empty( $path ) ) {
-            $url = str_ireplace( '://' . $host . '/' . $path . '/', '://' . $this->request_params->domain . '/', $input );
-            $url = str_ireplace( '://' . $host . '/' . $path, '://' . $this->request_params->domain, $url );
+            $path_pattern = preg_quote( trim( $path, '/' ), '/' );
+            $url = preg_replace_callback( '/(:\\/\\/)' . $host_pattern . '\\/' . $path_pattern . '(?=[\\/?#]|$)/i', function ( $matches ) {
+                return $matches[1] . $this->request_params->domain;
+            }, $input ) ?? $input;
             return apply_filters( 'dms_rewritten_url', $url, $this->rewrite_scenario );
         }
-        return apply_filters( 'dms_rewritten_url', str_ireplace( '://' . $host, '://' . $this->request_params->domain, $input ), $this->rewrite_scenario );
+        return apply_filters( 'dms_rewritten_url', $this->replace_base_host( $input ), $this->rewrite_scenario );
+    }
+
+    /**
+     * Replace the configured base host only when it matches a full URL host or bare host value.
+     *
+     * @param string $input
+     *
+     * @return string
+     */
+    public function replace_base_host( string $input ) : string {
+        $host = $this->request_params->get_base_host();
+        if ( empty( $host ) ) {
+            return $input;
+        }
+        return preg_replace_callback( '/(^|:\\/\\/|\\/\\/)' . preg_quote( $host, '/' ) . '(?=[:\\/?#]|$)/i', function ( $matches ) {
+            return $matches[1] . $this->request_params->domain;
+        }, $input ) ?? $input;
     }
 
     /**
@@ -638,15 +664,13 @@ class URI_Handler {
      */
     public function rewrite_hints( $hints, $rel ) {
         $base_domain = $this->request_params->base_host;
-        $mapped_domain = $this->request_params->domain;
-        // Mapped domain
         // Replace domain in dns-prefetch hints
         foreach ( $hints as &$hint ) {
             if ( is_array( $hint ) ) {
                 continue;
             }
             if ( strpos( $hint, $base_domain ) !== false ) {
-                $hint = str_replace( $base_domain, $mapped_domain, $hint );
+                $hint = $this->replace_base_host( $hint );
             }
         }
         return $hints;
@@ -661,11 +685,8 @@ class URI_Handler {
      * @return mixed
      */
     public function rewrite_feeds( $output, $feed ) {
-        $base_domain = $this->request_params->base_host;
-        $mapped_domain = $this->request_params->domain;
-        // Mapped domain
         // Replace domain in dns-prefetch hints
-        $output = str_replace( $base_domain, $mapped_domain, $output );
+        $output = $this->replace_base_host( $output );
         return $output;
     }
 

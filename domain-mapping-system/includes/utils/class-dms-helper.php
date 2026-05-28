@@ -500,6 +500,74 @@ class Helper {
     }
 
     /**
+     * Gets the nearest mapped page parent.
+     *
+     * @param int $page_id The id of the page.
+     *
+     * @return Mapping_Value|null
+     */
+    public static function get_mapped_parent_page_value( int $page_id ) : ?Mapping_Value {
+        foreach ( self::get_all_parents( $page_id ) as $parent_id ) {
+            $parent_mapping_values = Mapping_Value::where( [
+                'object_id'   => $parent_id,
+                'object_type' => Mapping_Value::OBJECT_TYPE_POST,
+            ] );
+            if ( !empty( $parent_mapping_values[0] ) ) {
+                return $parent_mapping_values[0];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets a page path relative to a mapped parent page.
+     *
+     * @param int $page_id The id of the page.
+     * @param int $parent_id The id of the mapped parent page.
+     *
+     * @return string|null
+     */
+    public static function get_page_path_relative_to_parent( int $page_id, int $parent_id ) : ?string {
+        $page_path = trim( (string) get_page_uri( $page_id ), '/' );
+        $parent_path = trim( (string) get_page_uri( $parent_id ), '/' );
+        if ( empty( $page_path ) || empty( $parent_path ) ) {
+            return null;
+        }
+        if ( $page_path === $parent_path ) {
+            return '';
+        }
+        if ( self::path_starts_with( $page_path, $parent_path ) ) {
+            return trim( substr( $page_path, strlen( $parent_path ) ), '/' );
+        }
+        return null;
+    }
+
+    /**
+     * Builds a mapped URL for a page whose parent is mapped.
+     *
+     * @param int $page_id The id of the page.
+     * @param string|null $query_string Query string to append.
+     *
+     * @return string|null
+     */
+    public static function get_mapped_parent_page_url( int $page_id, ?string $query_string = null ) : ?string {
+        $parent_mapping_value = self::get_mapped_parent_page_value( $page_id );
+        if ( empty( $parent_mapping_value ) ) {
+            return null;
+        }
+        $mapping = Mapping::find( $parent_mapping_value->get_mapping_id() );
+        if ( empty( $mapping ) ) {
+            return null;
+        }
+        $relative_path = self::get_page_path_relative_to_parent( $page_id, $parent_mapping_value->get_object_id() );
+        if ( is_null( $relative_path ) ) {
+            return null;
+        }
+        $path = trim( implode( '/', array_filter( [$mapping->path ?? '', $relative_path] ) ), '/' );
+        return self::generate_url( $mapping->host, $path, $query_string );
+    }
+
+    /**
      * Sync the freemius license
      *
      * @return void

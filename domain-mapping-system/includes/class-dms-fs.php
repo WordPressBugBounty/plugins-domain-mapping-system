@@ -62,17 +62,17 @@ class Freemius {
             // Include Freemius SDK.
             require_once plugin_dir_path( __DIR__ ) . '/vendor/freemius/start.php';
             return fs_dynamic_init( array(
-                'id'              => '6959',
-                'slug'            => 'domain-mapping-system',
-                'premium_slug'    => 'domain-mapping-system-pro',
-                'type'            => 'plugin',
-                'public_key'      => 'pk_e348807215df985c848c86b883ee3',
-                'is_premium'      => false,
-                'premium_suffix'  => '(PRO)',
-                'has_addons'      => false,
-                'has_paid_plans'  => true,
-                'has_affiliation' => 'selected',
-                'menu'            => array(
+                'id'               => '6959',
+                'slug'             => 'domain-mapping-system',
+                'premium_slug'     => 'domain-mapping-system-pro',
+                'type'             => 'plugin',
+                'public_key'       => 'pk_e348807215df985c848c86b883ee3',
+                'is_premium'       => false,
+                'premium_suffix'   => '(PRO)',
+                'has_addons'       => false,
+                'has_paid_plans'   => true,
+                'has_affiliation'  => 'selected',
+                'menu'             => array(
                     'slug'        => 'domain-mapping-system',
                     'affiliation' => false,
                     'contact'     => false,
@@ -80,7 +80,8 @@ class Freemius {
                     'account'     => false,
                     'pricing'     => false,
                 ),
-                'is_live'         => true,
+                'is_live'          => true,
+                'is_org_compliant' => true,
             ) );
         } catch ( Exception $e ) {
             Helper::log( $e, __METHOD__ );

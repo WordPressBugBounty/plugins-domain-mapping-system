@@ -91,6 +91,12 @@ class Woocommerce {
             10,
             2
         );
+        add_filter(
+            'allowed_redirect_hosts',
+            [$this, 'allow_mapped_redirect_hosts'],
+            10,
+            2
+        );
     }
 
     /**
@@ -135,6 +141,57 @@ class Woocommerce {
     }
 
     /**
+     * Allows WordPress safe redirects to target mapped domains managed by DMS.
+     *
+     * WooCommerce validates login redirects with wp_safe_redirect(). Without the mapped host
+     * in this list, a valid checkout redirect on the mapped domain can fall back to My Account.
+     *
+     * @param array  $hosts Allowed redirect hosts.
+     * @param string $host  Requested redirect host.
+     *
+     * @return array
+     */
+    public function allow_mapped_redirect_hosts( array $hosts, string $host ) : array {
+        $host = $this->normalize_redirect_host( $host );
+        if ( !empty( $host ) && $this->is_mapped_redirect_host( $host ) ) {
+            $hosts[] = $host;
+        }
+        return array_values( array_unique( array_filter( $hosts ) ) );
+    }
+
+    /**
+     * Checks whether the requested redirect host is managed by DMS.
+     *
+     * @param string $host Redirect host.
+     *
+     * @return bool
+     */
+    private function is_mapped_redirect_host( string $host ) : bool {
+        if ( $host === $this->normalize_redirect_host( $this->request_params->get_base_host() ) ) {
+            return true;
+        }
+        return !empty( Mapping::where( [
+            'host' => $host,
+        ], null, 1 ) );
+    }
+
+    /**
+     * Normalizes a host for allowed_redirect_hosts comparison.
+     *
+     * @param string|null $host Host value.
+     *
+     * @return string
+     */
+    private function normalize_redirect_host( ?string $host ) : string {
+        $host = strtolower( trim( (string) $host ) );
+        if ( empty( $host ) ) {
+            return '';
+        }
+        $parsed_host = wp_parse_url( ( str_contains( $host, '://' ) ? $host : 'http://' . $host ), PHP_URL_HOST );
+        return ( !empty( $parsed_host ) ? $parsed_host : preg_replace( '/:\\d+$/', '', $host ) );
+    }
+
+    /**
      * Checks if the current page is related to saving account details.
      *
      * @return bool
@@ -151,6 +208,46 @@ class Woocommerce {
     private function is_customer_logout_page() : bool {
         $substring = Setting::find( 'woocommerce_logout_endpoint' )->get_value() ?? 'customer-logout';
         return str_contains( $this->request_params->get_path(), $substring );
+    }
+
+    /**
+     * Checks if the current request is a WooCommerce login form submission with an explicit redirect.
+     *
+     * @return bool
+     */
+    private function is_login_redirect_submission() : bool {
+        return !empty( $_POST['login'] ) && (!empty( $_POST['redirect'] ) || !empty( $_POST['redirect_to'] ));
+    }
+
+    /**
+     * Checks if the current request is a WooCommerce login redirect to an allowed location.
+     *
+     * @param string $location Redirect location.
+     *
+     * @return bool
+     */
+    private function is_allowed_login_redirect_submission( string $location ) : bool {
+        if ( !$this->is_login_redirect_submission() ) {
+            return false;
+        }
+        $host = $this->get_redirect_location_host( $location );
+        return empty( $host ) || $this->is_mapped_redirect_host( $host );
+    }
+
+    /**
+     * Gets the host from a redirect location.
+     *
+     * @param string $location Redirect location.
+     *
+     * @return string
+     */
+    private function get_redirect_location_host( string $location ) : string {
+        $location = trim( $location );
+        if ( empty( $location ) ) {
+            return '';
+        }
+        $host = wp_parse_url( $location, PHP_URL_HOST );
+        return ( !empty( $host ) ? $this->normalize_redirect_host( $host ) : '' );
     }
 
     /**
