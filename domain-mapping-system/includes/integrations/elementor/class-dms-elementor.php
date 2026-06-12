@@ -83,13 +83,23 @@ class Elementor {
 	 * Check if Elementor is rendering a secondary loop item inside the mapped page.
 	 */
 	private function is_secondary_post_context( int $object_id ): bool {
-		global $post;
+		global $post, $wp_query;
 
 		if ( ! $post instanceof \WP_Post || $post->ID === $object_id ) {
 			return false;
 		}
 
-		return get_queried_object_id() === $object_id;
+		if ( get_queried_object_id() === $object_id ) {
+			return true;
+		}
+
+		if ( $wp_query instanceof \WP_Query && (int) $wp_query->get( 'page_id' ) === $object_id ) {
+			return true;
+		}
+
+		return $wp_query instanceof \WP_Query
+			&& isset( $wp_query->queried_object_id )
+			&& (int) $wp_query->queried_object_id === $object_id;
 	}
 
 	/**

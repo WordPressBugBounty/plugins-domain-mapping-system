@@ -1,3 +1,73 @@
+= 2.2.7 =
+* Fix TranslatePress mapped locale switching
+* Fix Elementor Loop Grid post context on mapped domains
+
+= 2.2.6 =
+* Freemius SDK upgrade
+* Fix TranslatePress mapped locale detection
+* Fix nested child URLs for parent mappings
+* Fix overlapping domain replacements
+* Include global shop products in Yoast sitemaps
+* Fix WooCommerce mapped login redirects
+* Fix Elementor listing context on mapped domains
+
+= 2.2.5.4 =
+* Improvement: improved code performance by up to 50% on larger sites.
+* Fix: fixed a PHP memory issue.
+* Fix: fixed blank WooCommerce category pages.
+* Other: updated minimum PHP version to 7.4.
+
+= 2.2.5.3 =
+* avoid fatal error when loading extensions early (required for TP)
+
+= 2.2.5.2 =
+* TranslatePress: fixed primary language redirection back to the original domain
+* Yoast: fix links in mapped XML sitemaps
+* prevent canonical redirect (unmapped scenario fallback)
+* TranslatePress: fixed language switcher, redirection and switching stability on mapped domains
+* TranslatePress: redirect primary language back to original domain when not explicitly mapped
+* TranslatePress: improved link generation logic for mapped domains (slug preservation)
+* TranslatePress: hardened integration against early initialization fatals
+* TranslatePress: fixed asset 404 errors on mapped domains
+* TranslatePress: improved mapping detection for language-specific links
+* Helper: improved mapping specificity to prefer longest path matches
+* Core: fixed case-correction redirects to stay on the mapped domain
+
+= 2.2.5.1 =
+* hotfix: wait for init on Elementor integration
+
+= 2.2.5 =
+* TranslatePress: fixed redirection loops and subdirectory conflicts for language-per-domain setups
+* TranslatePress: improved language switcher rewriting to correctly use mapped domains
+* TranslatePress: fixed fatal errors and PHP 8.1+ deprecation warnings in SEO Pack integration
+* TranslatePress: added support for ACF link and URL field rewriting
+* Elementor: fixed missing styles on subdomains by rewriting asset URLs in the uploads directory
+* Elementor: ensured correct post context and template loading on mapped domains
+* Elementor: improved integration to support both Free and Pro versions
+* Global Mapping: fixed issues where global mapping domains were redirected to the primary domain
+* Micro-sites: prevented unmapped pages from being accessible on mapped domains
+* Search: improved compatibility with Relevanssi and AJAX search on mapped domains
+* Admin: fixed "white screen" error on settings page caused by Freemius initialization issues
+* URI Handler: improved host and path replacement accuracy for asset and content rewriting
+* Helper: implemented robust path matching with trailing slash normalization
+* Yoast SEO: fixed empty mapping modal display anomaly
+* Yoast SEO: improved sitemap generation on mapped domains
+* Redirection: preserved UTM and other query parameters during redirections
+* URL Rewriting: improved nav menu link rewriting for all item types
+* URL Rewriting: added Global Domain Mapping support for term and post type links
+* Multisite: improved sunrise.php to respect native site mappings and expanded path exemptions
+* Added support for domain mapping based on page taxonomies
+* Fixed taxonomy key synchronization between settings UI and backend for non-default post types
+
+= 2.2.4.3 =
+* updated build files
+
+= 2.2.4.2 =
+* improved admin UI (segmented settings)
+* navigation link rewrite improvements
+* Rest API endpoint normalisation (save settings bug)
+* Freemius SDK upgrade
+
 = 2.2.4.1 =
 * updated Freemius SDK
 * improved slash handling in generate_url method

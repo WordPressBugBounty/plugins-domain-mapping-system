@@ -57,9 +57,6 @@ class Post_Mapper extends Mapper implements Mapper_Interface {
 		unset( $this->query->is_category );
 		unset( $this->query->query['pagename']);
 		unset( $this->query->query_vars['pagename']);
-		unset( $this->query->queried_object_id);
-		unset( $this->query->queried_object);
-
 		if ( $this->object->post_type !== 'page' ) {
 			$this->query->is_page            = false;
 			$this->query->is_single          = true;
@@ -78,6 +75,10 @@ class Post_Mapper extends Mapper implements Mapper_Interface {
 			$this->query->is_single   = false;
 		}
 		$this->query->set( 'page_id', $this->object->ID );
+		$this->query->set( 'queried_object', $this->object );
+		$this->query->set( 'queried_object_id', $this->object->ID );
+		$this->query->queried_object    = $this->object;
+		$this->query->queried_object_id = (int) $this->object->ID;
 		$this->query->is_post_type_archive = false;
 	}
 }

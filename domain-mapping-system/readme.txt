@@ -6,7 +6,7 @@ Donate link: https://domainmappingsystem.com/?utm_source=wporg&utm_medium=readme
 Tags: multiple domains, multidomain, multisite, subdomain, alias
 Requires at least: 5.1
 Tested up to: 7.0
-Stable tag: 2.2.6
+Stable tag: 2.2.7
 Requires PHP: 7.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -385,6 +385,11 @@ We really appreciate your input! We currently don't have a public repo, but you 
 5. WordPress Subdirectory Domain Mapping (PRO)
 
 == Changelog ==
+
+= 2.2.7 =
+
+* Fix TranslatePress mapped locale switching
+* Fix Elementor Loop Grid post context on mapped domains
 
 = 2.2.6 =
 
